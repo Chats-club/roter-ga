@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Month 7</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/home.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      emailjs.init("ij7vRY53B5p5u2fWC"); // thay bằng Public Key của bạn
+    </script>
+  </head>
+  <style>
+    .table-wrapper {
+      overflow: auto !important;
+      max-height: 87vh;
+      width: 100%;
+    }
+
+    /* thêm vào phần style cũ */
+
+    td.has-o {
+      background-color: #4caf50 !important;
+      color: white !important;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    thead th {
+      line-height: 1.4;
+    }
+    tbody td:nth-child(4) {
+      font-size: 16px !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      font-weight: bold;
+    }
+    tbody td:nth-child(1) {
+      font-size: 16px !important;
+      font-weight: bold;
+      color: blue;
+    }
+    tbody td:nth-child(2) {
+      font-size: 12px !important;
+      color: black;
+      font-weight: bolder;
+    }
+    tbody td:nth-child(3) {
+      font-size: 16px !important;
+    }
+    thead th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 5 !important;
+      background: #212529 !important;
+      color: #fff !important;
+    }
+
+    /* Viền đậm tách biệt sau cột 4 */
+
+    tbody td:nth-child(4) {
+      border-right: 1px solid black !important; /* cam đậm để phân biệt rõ */
+    }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+    }
+  </style>
+  <body class="p-1">
+    <div class="container-fluid">
+      <h3 class="mb-2 d-flex justify-content-center">
+        📋 Roster Month 7_
+        <span style="color: coral">(26/06/20026-25/07/2026)</span>
+      </h3>
+      <a href="/" class="btn btn-secondary mb-3 text-align">← Back to Home</a>
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <img
+            src="{{ url_for('static', filename='images/roster.jpg') }}"
+            alt="roster"
+            class="img-fluid rounded"
+          />
+        </div>
+      </div>
+    </div>
+    <form action="/month7/history" method="POST" id="shiftForm">
+      <div class="container d-flex justify-content-center mt-4">
+        <div class="card shadow p-4 w-50">
+          <h5 class="mb-3">Shift Changing Request or PH, AL....</h5>
+          <textarea
+            name="text"
+            id="requestText"
+            class="form-control mb-3"
+            rows="5"
+          ></textarea>
+          <div class="d-flex justify-content-between">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="handleSubmit()"
+            >
+              Submit
+            </button>
+            <a href="/month7/history" class="btn btn-outline-secondary"
+              >History</a
+            >
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function handleSubmit() {
+        const message = document.getElementById("requestText").value;
+
+        if (!message.trim()) {
+          alert("Vui lòng nhập nội dung request!");
+          return;
+        }
+
+        const templateParams = {
+          name: "Nhân viên", // {{name}} trong template
+          message: message, // {{message}} trong template
+          time: new Date().toLocaleString("vi-VN"), // {{time}} trong template
+        };
+
+        emailjs
+          .send("service_paa96fd", "template_x6vqwo1", templateParams)
+          .then(() => {
+            // Gửi email xong → submit form lên server
+            document.getElementById("shiftForm").submit();
+          })
+          .catch((error) => {
+            console.error("EmailJS error:", error);
+            // Vẫn submit form dù email lỗi
+            document.getElementById("shiftForm").submit();
+          });
+      }
+    </script>
+  </body>
+</html>
