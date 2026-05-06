@@ -30,31 +30,47 @@
     td.has-o {
       background-color: #4caf50 !important;
       color: white !important;
-      font-weight: bold;
+      font-weight: bolder;
       text-align: center;
     }
-
+    td,
+    th {
+      padding: 1px !important;
+      text-align: center;
+      font-size: 10px;
+    }
+    tbody tr {
+      height: 16px;
+    }
+    td {
+      height: 16px;
+      line-height: 1;
+      padding: 3px 2px !important;
+      vertical-align: middle;
+    }
     thead th {
-      line-height: 1.4;
+      line-height: 1.2;
     }
     tbody td:nth-child(4) {
-      font-size: 16px !important;
+      font-size: 10px !important;
       white-space: nowrap !important;
       word-break: keep-all !important;
-      font-weight: bold;
+      font-weight: bolder;
     }
     tbody td:nth-child(1) {
-      font-size: 16px !important;
-      font-weight: bold;
+      font-size: 8px !important;
+      font-weight: bolder;
       color: blue;
     }
     tbody td:nth-child(2) {
-      font-size: 12px !important;
+      font-size: 6px !important;
       color: black;
       font-weight: bolder;
     }
     tbody td:nth-child(3) {
-      font-size: 16px !important;
+      font-size: 8px !important;
+      color: chocolate;
+      font-weight: bolder;
     }
     thead th {
       position: sticky !important;
@@ -76,12 +92,13 @@
   </style>
   <body class="p-1">
     <div class="container-fluid">
-      <h3 class="mb-2 d-flex justify-content-center">
+      <h3 class="mb-1 d-flex justify-content-center">
         📋 Roster Month 7_
         <span style="color: coral">(26/06/20026-25/07/2026)</span>
       </h3>
-      <a href="/" class="btn btn-secondary mb-3 text-align">← Back to Home</a>
-      <div class="card shadow-sm">
+      <a href="/" class="btn btn-secondary mb-2 text-align">← Back to Home</a>
+
+      <!-- <div class="card shadow-sm">
         <div class="card-body text-center">
           <img
             src="{{ url_for('static', filename='images/roster.jpg') }}"
@@ -89,6 +106,34 @@
             class="img-fluid rounded"
           />
         </div>
+      </div> -->
+
+      <div class="table-wrapper">
+        <table
+          class="table table-bordered table-striped table-hover align-middle"
+        >
+          <thead class="table-dark">
+            <tr>
+              {% for col in columns %}
+              <th>{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+            <tr>
+              {% for col in columns %} {% set val = row.get(col, '') %} {% if
+              val is none or val == 'nan' or val != val %}
+              <td></td>
+              {% elif val == 'O' %}
+              <td class="has-o">O</td>
+              {% else %}
+              <td>{{ val }}</td>
+              {% endif %} {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
     <form action="/month7/history" method="POST" id="shiftForm">

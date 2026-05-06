@@ -18,7 +18,26 @@ def home():
 
 @app.route("/month7")
 def month7():
-    return render_template("month7.html")
+    df = pd.read_excel(FILES[7],header=[0, 1])
+    new_columns = []
+    fixed_cols = ['E - NAME', 'NO.', 'ID', 'Full Name']
+    
+    for i, (top, bot) in enumerate(df.columns):
+        top = str(top).strip()
+        bot = str(bot).strip()
+        
+        if i < 4:  # 4 cột đầu
+            new_columns.append(top if 'Unnamed' not in top else bot)
+        else:
+            day_name = top if 'Unnamed' not in top else ''
+            day_num = bot if 'Unnamed' not in bot else ''
+            new_columns.append(f"{day_name}-{day_num}")
+    df.columns = new_columns
+      # Bỏ số đằng sau tên cột (ví dụ: Sat.1 -> Sat, Mon.2 -> Mon)
+    df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
+    data = df.to_dict(orient="records")
+    columns = df.columns.tolist()
+    return render_template("month7.html", data=data, columns=new_columns)
 
 @app.route("/month7/history", methods=["GET", "POST"])
 def month7_history():

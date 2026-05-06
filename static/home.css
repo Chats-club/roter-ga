@@ -126,12 +126,12 @@ tbody td:nth-child(n + 5) {
   thead th:nth-child(4),
   tbody td:nth-child(4) {
     left: 118px;
-    width: 85px;
+    width: 75px;
     font-size: 9px;
   }
   thead th:nth-child(n + 5),
   tbody td:nth-child(n + 5) {
-    width: 35px;
-    min-width: 35px;
+    width: 25px;
+    min-width: 25px;
   }
 }
