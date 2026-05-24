@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import pandas as pd
 import re
 from pymongo import MongoClient
@@ -65,7 +65,8 @@ def month7():
 def month7_history():
     if request.method == "POST":
         text = request.form.get("text")
-        now = datetime.now().strftime("%d/%m/%Y %H:%M")
+        vn_tz = timezone(timedelta(hours=7))
+        now = datetime.now(vn_tz).strftime("%d/%m/%Y %H:%M")
         history_col.insert_one({"time": now, "text": text})
         return redirect(url_for('month7_history'))
 
