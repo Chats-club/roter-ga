@@ -1,17 +1,25 @@
-from flask import Flask, render_template,redirect,request
+from flask import Flask, render_template, request, redirect, url_for,jsonify
 from datetime import datetime
 import pandas as pd
 import re
+from pymongo import MongoClient
+import os                         # 🌟 Thêm dòng này
+from dotenv import load_dotenv    # 🌟 Thêm dòng này
 
+load_dotenv()                     # 🌟 Tải các biến từ file .env lên hệ thống
 app = Flask(__name__)
 
-# Đường dẫn file Excel trực tiếp
+
 FILES = {
-    7: "uploads/Bảng tính không có tiêu đề-2.xlsx",
+    7: "uploads/month7.xlsx",
     8: "uploads/Tài Liệu 08.xlsx",  # đổi tên file đúng
     9: "uploads/Tài Liệu 09.xlsx",  # đổi tên file đúng
 }
-
+#  Kết nối tới MongoDB
+mongo_uri = os.getenv("MONGO_URI")
+client = MongoClient(mongo_uri)
+db = client["flask_db"]          # Tên Database
+history_col = db["history"]      # Tên Collection (Thay thế cho file text)
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -20,13 +28,13 @@ def home():
 def month7():
     df = pd.read_excel(FILES[7],header=[0, 1])
     new_columns = []
-    fixed_cols = ['E - NAME', 'NO.', 'ID', 'Full Name']
+    fixed_cols = ['E - NAME', 'ID', 'Full Name']
     
     for i, (top, bot) in enumerate(df.columns):
         top = str(top).strip()
         bot = str(bot).strip()
         
-        if i < 4:  # 4 cột đầu
+        if i < 3:  # 3 cột đầu
             new_columns.append(top if 'Unnamed' not in top else bot)
         else:
             day_name = top if 'Unnamed' not in top else ''
@@ -43,17 +51,23 @@ def month7():
 def month7_history():
     if request.method == "POST":
         text = request.form.get("text")
-
         now = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-        # ✅ phải có dấu |
-        line = f"{now}|{text}"
-
-        with open("history_month7.txt", "a") as f:
-            f.write(line + "\n")
-
-    with open("history_month7.txt", "r") as f:
-        data = f.readlines()
+        # 3. Thay vì nối chuỗi f"{now}|{text}", ta tạo một Document (Dictionary)
+        new_document = {
+            "time": now,
+            "text": text
+        }
+        
+        # 4. Lưu vào MongoDB bằng lệnh insert_one
+        history_col.insert_one(new_document)
+        # 🌟 QUAN TRỌNG: Gửi dữ liệu xong thì chuyển hướng (Redirect) về chính trang này 
+        # bằng phương thức GET để tải lại toàn bộ lịch sử mới nhất.
+        return redirect(url_for('month7_history'))
+    # 5. Lấy toàn bộ dữ liệu từ MongoDB ra để hiển thị (Sắp xếp theo dữ liệu mới nhất lên đầu)
+    # .find({}, {"_id": 0}) nghĩa là lấy hết dữ liệu và bỏ qua trường _id tự động của Mongo cho nhẹ
+    data_cursor = history_col.find({}, {"_id": 0})
+    data = list(data_cursor)
 
     return render_template("month7_history.html", data=data)
 

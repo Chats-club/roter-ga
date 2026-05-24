@@ -1,0 +1,106 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal-900: #04342C;
+    --teal-800: #085041;
+    --teal-700: #0F6E56;
+    --teal-500: #1D9E75;
+    --teal-300: #5DCAA5;
+    --teal-100: #9FE1CB;
+    --teal-50:  #E1F5EE;
+    --green-100: #C0DD97;
+    --green-800: #27500A;
+    --blue-100:  #B5D4F4;
+    --blue-800:  #0C447C;
+    --gray-50:   #F8FAFC;
+    --gray-100:  #F1EFE8;
+    --gray-200:  #E2E8F0;
+    --gray-400:  #94A3B8;
+    --gray-600:  #5F5E5A;
+    --gray-800:  #1E293B;
+    --amber-100: #FAC775;
+    --amber-800: #633806;
+    --red-100:   #F7C1C1;
+    --red-800:   #791F1F;
+    --white: #ffffff;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  html, body {
+    font-family: var(--font);
+    background: var(--gray-100);
+    min-height: 100vh;
+    color: var(--gray-800);
+    font-size: 14px;
+  }
+
+  /* ── TOP NAV ── */
+  .topbar {
+    background: var(--teal-300);
+    padding: 0 12px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+/* ── SEARCH & FILTERS ── */
+  .toolbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    color: var(--gray-400);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 7px 10px 7px 32px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: var(--font);
+    color: var(--gray-800);
+    background: var(--gray-50);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--teal-500); background: var(--white); }
+  .search-input::placeholder { color: var(--gray-400); }
+
+  .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: var(--font);
+    color: var(--gray-600);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--teal-500); color: var(--teal-700); }
+  .filter-btn svg { width: 13px; height: 13px; }

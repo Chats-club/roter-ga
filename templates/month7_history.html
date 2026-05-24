@@ -17,19 +17,14 @@
 
       <a href="/month7" class="btn btn-secondary mb-3">← Back</a>
 
-      <table class="table">
-        <tr>
-          <th>Time</th>
-          <th>Request</th>
-        </tr>
-
-        {% for item in data %} {% set parts = item.strip().split('|') %}
-        <tr>
-          <td>{{ parts[0] }}</td>
-          <td>{{ parts[1] if parts|length > 1 else '' }}</td>
-        </tr>
+      <ul class="list-group">
+        {% for item in data %}
+        <li class="list-group-item">
+          <span class="text-muted small">[{{ item.time }}]</span>
+          <span class="ms-2">{{ item.text }}</span>
+        </li>
         {% endfor %}
-      </table>
+      </ul>
     </div>
   </body>
 </html>
