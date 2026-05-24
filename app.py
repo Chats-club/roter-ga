@@ -5,7 +5,7 @@ import re
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
-
+import certifi
 load_dotenv()
 
 app = Flask(__name__)
@@ -19,8 +19,13 @@ mongo_uri = os.getenv("MONGO_URI")
 if not mongo_uri:
     raise ValueError("❌ MONGO_URI environment variable is not set!")
 
+
 try:
-    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+    client = MongoClient(
+        mongo_uri,
+        serverSelectionTimeoutMS=5000,
+        tlsCAFile=certifi.where()
+    )
     client.admin.command('ping')
     print("✅ MongoDB connected successfully")
 except Exception as e:
