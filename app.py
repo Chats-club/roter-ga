@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for,jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
 import pandas as pd
 import re
@@ -11,9 +11,7 @@ app = Flask(__name__)
 
 
 FILES = {
-    7: "uploads/month7.xlsx",
-    8: "uploads/Tài Liệu 08.xlsx",  # đổi tên file đúng
-    9: "uploads/Tài Liệu 09.xlsx",  # đổi tên file đúng
+    7: "uploads/month7.xlsx"
 }
 #  Kết nối tới MongoDB
 mongo_uri = os.getenv("MONGO_URI")
@@ -84,6 +82,19 @@ def month9():
     data = df.to_dict(orient="records")
     columns = df.columns.tolist()
     return render_template("month9.html", data=data, columns=columns)
+
+mongo_uri = os.getenv("MONGO_URI")
+if not mongo_uri:
+    raise ValueError("MONGO_URI environment variable is not set!")
+
+client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+
+# Test connection on startup
+try:
+    client.admin.command('ping')
+    print("✅ MongoDB connected successfully")
+except Exception as e:
+    print(f"❌ MongoDB connection failed: {e}")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5500)
