@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <!-- Thêm vào thẻ <head> -->
+    <meta name="vapid-key" content="{{ vapid_public_key }}" />
     <title>Month 7</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -19,6 +20,10 @@
     </script>
   </head>
   <style>
+    .sticky-table {
+      border-collapse: separate !important;
+      border-spacing: 0.2px !important;
+    }
     .table-wrapper {
       overflow: auto !important;
       max-height: 87vh;
@@ -37,7 +42,7 @@
     th {
       padding: 1px !important;
       text-align: center;
-      font-size: 8px;
+      font-size: 11px;
     }
     /* tr {
       height: 10px;
@@ -48,11 +53,15 @@
     td {
       height: 16px;
       line-height: 1;
-      padding: 3px 2px !important;
+      padding: 3px 3px !important;
       vertical-align: middle;
     }
     thead th {
+      position: sticky !important;
+      left: 0;
+      z-index: 15;
       line-height: 1.2;
+      font-size: 11px !important;
     }
     /* tbody td:nth-child(4) {
       font-size: 6px !important;
@@ -62,21 +71,22 @@
     } */
     tbody td:nth-child(1) {
       position: sticky !important;
+      border-right: 1px solid black;
       left: 0;
-      font-size: 7px !important;
+      font-size: 11px !important;
       font-weight: bolder;
       color: blue;
       text-align: left;
       width: 45px;
     }
     tbody td:nth-child(2) {
-      font-size: 6px !important;
+      font-size: 8px !important;
       color: black;
       font-weight: bolder;
       text-align: left;
     }
     tbody td:nth-child(3) {
-      font-size: 7px !important;
+      font-size: 8px !important;
       color: chocolate;
       font-weight: bolder;
       text-align: left;
@@ -90,11 +100,18 @@
       color: #fff !important;
     }
 
+    /* Thêm cái này - góc trái trên cùng */
+    thead th:nth-child(1) {
+      left: 0 !important;
+      z-index: 10 !important; /* cao hơn các th khác */
+    }
+
     /* Viền đậm tách biệt sau cột 4 */
 
     tbody td:nth-child(3) {
       border-right: 1px solid black !important; /* cam đậm để phân biệt rõ */
     }
+
     body {
       min-height: 100vh;
       background: linear-gradient(135deg, #74ebd5, #9face6);
@@ -102,9 +119,13 @@
     #shiftForm {
       margin-top: 5px;
     }
+    .badge {
+      color: tomato;
+      font-size: 16px;
+    }
   </style>
   <body class="p-1">
-    <div class="container-fluid">
+    <div class="container-fluid m-2">
       <div class="topbar">
         <div class="topbar-left">
           <a href="/" class="btn-home"> Home </a>
@@ -153,6 +174,10 @@
           </svg>
           Filter
         </button>
+        <!-- Thêm vào toolbar của bạn, cạnh nút Filter -->
+        <button onclick="subscribePush()" class="filter-btn" id="notifyBtn">
+          🔔 Enable Notify
+        </button>
       </div>
       <!-- <div class="card shadow-sm">
         <div class="card-body text-center">
@@ -166,7 +191,7 @@
 
       <div class="table-wrapper">
         <table
-          class="table table-bordered table-striped table-hover align-middle"
+          class="table table-bordered table-striped table-hover align-middle sticky-table"
         >
           <thead class="table-dark">
             <tr>
@@ -245,7 +270,7 @@
             document.getElementById("shiftForm").submit();
           });
       }
-      
+
       // ── DOM FILTER (instant, no server round-trip) ─────────────
       // Works on the already-rendered Jinja2 table rows.
       let debounceTimer = null;
@@ -292,6 +317,18 @@
 
       // ── SERVER FETCH (for dynamic/paginated use later) ──────────
       // Call this if you want to replace the table with API data instead.
+      const VAPID_PUBLIC_KEY = document.querySelector(
+        'meta[name="vapid-key"]',
+      ).content;
+
+      function urlBase64ToUint8Array(base64String) {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding)
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+        const rawData = atob(base64);
+        return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+      }
       let currentRequest = null;
 
       async function fetchRoster(search = "", shifts = "") {
@@ -330,6 +367,41 @@
           )
           .join("");
       }
+
+      // ── Push Notification Subscribe ──────────────────
+      async function subscribePush() {
+        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+          alert("Browser không hỗ trợ push notification");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          alert("Bạn cần Allow notification!");
+          return;
+        }
+
+        const reg = await navigator.serviceWorker.register("/service-worker.js");
+        await navigator.serviceWorker.ready;
+
+        const subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+
+        await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription.toJSON()),
+        });
+
+        // Đổi nút sau khi subscribe thành công
+        document.getElementById("notifyBtn").textContent = "✅ Notify ON";
+        document.getElementById("notifyBtn").disabled = true;
+      }
+
+      // Xóa dòng này ↓
+      // window.addEventListener("load", subscribePush);
     </script>
   </body>
 </html>
