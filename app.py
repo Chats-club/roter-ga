@@ -144,5 +144,9 @@ def service_worker():
                                    mimetype="application/javascript")
     response.headers["Service-Worker-Allowed"] = "/"
     return response
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory("static", "manifest.json",
+                               mimetype="application/manifest+json")
 if __name__ == "__main__":
     app.run(debug=True, port=5500)

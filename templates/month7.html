@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GA Roster" />
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png" />
+    <meta name="theme-color" content="#74ebd5" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Thêm vào thẻ <head> -->
@@ -53,7 +59,7 @@
     td {
       height: 16px;
       line-height: 1;
-      padding: 3px 3px !important;
+      padding: 3px 2px !important;
       vertical-align: middle;
     }
     thead th {
@@ -61,7 +67,7 @@
       left: 0;
       z-index: 15;
       line-height: 1.2;
-      font-size: 11px !important;
+      font-size: 10px !important;
     }
     /* tbody td:nth-child(4) {
       font-size: 6px !important;
@@ -73,7 +79,7 @@
       position: sticky !important;
       border-right: 1px solid black;
       left: 0;
-      font-size: 11px !important;
+      font-size: 10px !important;
       font-weight: bolder;
       color: blue;
       text-align: left;
@@ -125,7 +131,7 @@
     }
   </style>
   <body class="p-1">
-    <div class="container-fluid m-2">
+    <div class="container-fluid">
       <div class="topbar">
         <div class="topbar-left">
           <a href="/" class="btn-home"> Home </a>
@@ -381,7 +387,8 @@
           return;
         }
 
-        const reg = await navigator.serviceWorker.register("/service-worker.js");
+        const reg =
+          await navigator.serviceWorker.register("/service-worker.js");
         await navigator.serviceWorker.ready;
 
         const subscription = await reg.pushManager.subscribe({
