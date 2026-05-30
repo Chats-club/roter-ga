@@ -28,7 +28,7 @@
   <style>
     .sticky-table {
       border-collapse: separate !important;
-      border-spacing: 0.2px !important;
+      border-spacing: 0.1px !important;
     }
     .table-wrapper {
       overflow: auto !important;
@@ -49,18 +49,17 @@
       font-weight: bolder;
       text-align: center;
     }
-     td.has-al {
+    td.has-al {
       color: #f6070b !important;
       font-weight: bolder;
       text-align: center;
     }
 
-
     td,
     th {
       padding: 0.9px !important;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
     }
     /* tr {
       height: 10px;
@@ -71,7 +70,7 @@
     td {
       height: 16px;
       line-height: 1.2;
-      padding: 3px 2px !important;
+      padding: 3.1px 2px !important;
       vertical-align: middle;
     }
     thead th {
@@ -79,7 +78,7 @@
       left: 0;
       z-index: 15;
       line-height: 1.2;
-      font-size: 10px !important;
+      font-size: 8px !important;
     }
     /* tbody td:nth-child(4) {
       font-size: 6px !important;
@@ -92,10 +91,10 @@
       border-right: 1px solid black;
       left: 0;
       font-size: 8px !important;
-      font-weight: bolder;
+      font-weight:bolder;
       color: blue;
       text-align: left;
-      width: 45px;
+      width: 40px;
     }
     tbody td:nth-child(2) {
       font-size: 7px !important;
@@ -244,7 +243,7 @@
               <td class="has-o">O</td>
               {% elif val == 'PH' %}
               <td class="has-ph">PH</td>
-               {% elif val == 'AL' %}
+              {% elif val == 'AL' %}
               <td class="has-al">AL</td>
               {% else %}
               <td>{{ val }}</td>
