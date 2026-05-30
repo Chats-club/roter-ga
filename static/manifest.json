@@ -2,7 +2,7 @@
   "name": "GA Roster",
   "short_name": "Roster",
   "description": "Staff roster management",
-  "start_url": "/month7",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#74ebd5",
   "theme_color": "#74ebd5",

@@ -60,7 +60,7 @@ def month7():
     for i, (top, bot) in enumerate(df.columns):
         top = str(top).strip()
         bot = str(bot).strip()
-        if i < 3:
+        if i < 2:
             new_columns.append(top if 'Unnamed' not in top else bot)
         else:
             day_name = top if 'Unnamed' not in top else ''
