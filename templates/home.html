@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GA Roster" />
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png" />
+    <meta name="vapid-key" content="{{ vapid_public_key }}" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
@@ -13,7 +19,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='home.css') }}"
+      href="{{ url_for('static', filename='css/home.css') }}"
     />
     <title>GA Roster</title>
     <style>
@@ -45,9 +51,11 @@
       }
       .badge-month {
         background: linear-gradient(135deg, #f093fb, #f5576c);
-        font-size: 0.75rem;
+        font-size: 1.25rem;
         border-radius: 20px;
         padding: 4px 12px;
+        margin: 0;
+        line-height: 1;
       }
       .icon-box {
         width: 56px;
@@ -67,10 +75,16 @@
     <div class="container" style="max-width: 700px">
       <!-- Hero Header -->
       <div class="hero text-white text-center p-5 mb-4">
-        <div class="mb-3">
-          <span class="badge badge-month text-white mb-2"
+        <div
+          class="mb-3 d-flex justify-content-between align-items-center px-2"
+        >
+          <span class="badge badge-month text-white"
             >International Tourist Club</span
           >
+          <!-- Thêm notification -->
+          <button onclick="subscribePush()" class="filter-btn" id="notifyBtn">
+            🔔
+          </button>
         </div>
         <h1 class="fw-bold fs-2 mb-1">Game Ambassador Roster</h1>
         <p class="text-white-50 mb-0">
@@ -148,5 +162,54 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const VAPID_PUBLIC_KEY = document.querySelector(
+        'meta[name="vapid-key"]',
+      ).content;
+
+      function urlBase64ToUint8Array(base64String) {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding)
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+        const rawData = atob(base64);
+        return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+      }
+      // ── Push Notification Subscribe ──────────────────
+      async function subscribePush() {
+        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+          alert("Browser không hỗ trợ push notification");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          alert("Bạn cần Allow notification!");
+          return;
+        }
+
+        const reg =
+          await navigator.serviceWorker.register("/service-worker.js");
+        await navigator.serviceWorker.ready;
+
+        const subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+
+        await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription.toJSON()),
+        });
+
+        // Đổi nút sau khi subscribe thành công
+        document.getElementById("notifyBtn").textContent = "🔔 ON";
+        document.getElementById("notifyBtn").disabled = true;
+      }
+
+      // Xóa dòng này ↓
+      // window.addEventListener("load", subscribePush);
+    </script>
   </body>
 </html>

@@ -14,6 +14,9 @@ app = Flask(__name__)
 from flask import send_from_directory
 
 FILES = {
+    7: "uploads/ORIGINAL7.xlsx",
+}
+MANPOWERFILES = {
     7: "uploads/month7.xlsx",
 }
 
@@ -47,11 +50,30 @@ VAPID_EMAIL       = os.getenv("VAPID_EMAIL", "mailto:admin@example.com")
 # ── Routes cũ ────────────────────────────────────
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html",vapid_public_key=VAPID_PUBLIC_KEY)
 
 
 @app.route("/month7")
 def month7():
+    df = pd.read_excel(FILES[7],sheet_name='M0NTH7', header=[0, 1])
+    new_columns = []
+    for i, (top, bot) in enumerate(df.columns):
+        top = str(top).strip()
+        bot = str(bot).strip()
+        if i < 3:
+            new_columns.append(top if 'Unnamed' not in top else bot)
+        else:
+            day_name = top if 'Unnamed' not in top else ''
+            day_num  = bot if 'Unnamed' not in bot else ''
+            new_columns.append(f"{day_name}-{day_num}")
+    df.columns = new_columns
+    df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
+    new_columns = df.columns.tolist()
+    data = df.to_dict(orient="records")
+    return render_template("month7.html", data=data, columns=new_columns)  # ← truyền key
+
+@app.route("/man_power")
+def man_power():
     df = pd.read_excel(FILES[7], header=[0, 1])
     new_columns = []
     for i, (top, bot) in enumerate(df.columns):
@@ -67,9 +89,7 @@ def month7():
     df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
     new_columns = df.columns.tolist()
     data = df.to_dict(orient="records")
-    return render_template("month7.html", data=data, columns=new_columns,
-                           vapid_public_key=VAPID_PUBLIC_KEY)  # ← truyền key
-
+    return render_template("man_power.html", data=data, columns=new_columns)  # ← truyền key
 
 @app.route("/month7/history", methods=["GET", "POST"])
 def month7_history():

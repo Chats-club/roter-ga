@@ -10,7 +10,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Thêm vào thẻ <head> -->
-    <meta name="vapid-key" content="{{ vapid_public_key }}" />
+
     <title>Month 7</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -44,6 +44,18 @@
       font-weight: bolder;
       text-align: center;
     }
+    td.has-ph {
+      color: #1536c6 !important;
+      font-weight: bolder;
+      text-align: center;
+    }
+     td.has-al {
+      color: #f6070b !important;
+      font-weight: bolder;
+      text-align: center;
+    }
+
+
     td,
     th {
       padding: 1px !important;
@@ -79,20 +91,20 @@
       position: sticky !important;
       border-right: 1px solid black;
       left: 0;
-      font-size: 10px !important;
+      font-size: 8px !important;
       font-weight: bolder;
       color: blue;
       text-align: left;
       width: 45px;
     }
     tbody td:nth-child(2) {
-      font-size: 8px !important;
+      font-size: 7px !important;
       color: black;
       font-weight: bolder;
       text-align: left;
     }
     tbody td:nth-child(3) {
-      font-size: 8px !important;
+      font-size: 6px !important;
       color: chocolate;
       font-weight: bolder;
       text-align: left;
@@ -180,9 +192,25 @@
           </svg>
           Filter
         </button>
-        <!-- Thêm vào toolbar của bạn, cạnh nút Filter -->
-        <button onclick="subscribePush()" class="filter-btn" id="notifyBtn">
-          🔔 Enable Notify
+        <button class="manpower-btn">
+          <svg
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
+            />
+          </svg>
+          Man Power
         </button>
       </div>
       <!-- <div class="card shadow-sm">
@@ -214,6 +242,10 @@
               <td></td>
               {% elif val == 'O' %}
               <td class="has-o">O</td>
+              {% elif val == 'PH' %}
+              <td class="has-ph">PH</td>
+               {% elif val == 'AL' %}
+              <td class="has-al">AL</td>
               {% else %}
               <td>{{ val }}</td>
               {% endif %} {% endfor %}
@@ -323,18 +355,7 @@
 
       // ── SERVER FETCH (for dynamic/paginated use later) ──────────
       // Call this if you want to replace the table with API data instead.
-      const VAPID_PUBLIC_KEY = document.querySelector(
-        'meta[name="vapid-key"]',
-      ).content;
 
-      function urlBase64ToUint8Array(base64String) {
-        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-        const base64 = (base64String + padding)
-          .replace(/-/g, "+")
-          .replace(/_/g, "/");
-        const rawData = atob(base64);
-        return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
-      }
       let currentRequest = null;
 
       async function fetchRoster(search = "", shifts = "") {
@@ -373,42 +394,6 @@
           )
           .join("");
       }
-
-      // ── Push Notification Subscribe ──────────────────
-      async function subscribePush() {
-        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-          alert("Browser không hỗ trợ push notification");
-          return;
-        }
-
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") {
-          alert("Bạn cần Allow notification!");
-          return;
-        }
-
-        const reg =
-          await navigator.serviceWorker.register("/service-worker.js");
-        await navigator.serviceWorker.ready;
-
-        const subscription = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-        });
-
-        await fetch("/api/subscribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(subscription.toJSON()),
-        });
-
-        // Đổi nút sau khi subscribe thành công
-        document.getElementById("notifyBtn").textContent = "✅ Notify ON";
-        document.getElementById("notifyBtn").disabled = true;
-      }
-
-      // Xóa dòng này ↓
-      // window.addEventListener("load", subscribePush);
     </script>
   </body>
 </html>
