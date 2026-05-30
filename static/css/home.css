@@ -64,7 +64,7 @@ body {
 .toolbar {
   background: var(--white);
   border-bottom: 1px solid var(--gray-200);
-  padding: 0px 10px;
+  padding: 0.2px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -74,6 +74,8 @@ body {
 .search-wrap {
   flex: 1;
   position: relative;
+  border: 0.5px solid black;
+  border-radius: 8px;
 }
 .search-wrap svg {
   position: absolute;
