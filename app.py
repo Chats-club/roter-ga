@@ -16,9 +16,9 @@ from flask import send_from_directory
 FILES = {
     7: "uploads/ORIGINAL7.xlsx",
 }
-MANPOWERFILES = {
-    7: "uploads/month7.xlsx",
-}
+# MANPOWERFILES = {
+#     7: "uploads/month7.xlsx",
+# }
 
 # ── MongoDB ───────────────────────────────────────
 mongo_uri = os.getenv("MONGO_URI")
@@ -72,24 +72,37 @@ def month7():
     data = df.to_dict(orient="records")
     return render_template("month7.html", data=data, columns=new_columns)  # ← truyền key
 
-@app.route("/man_power")
+@app.route("/man_power7")
 def man_power():
-    df = pd.read_excel(FILES[7], header=[0, 1])
+    df = pd.read_excel(FILES[7], sheet_name='ManPower7', header=[0, 1])
+    
     new_columns = []
     for i, (top, bot) in enumerate(df.columns):
         top = str(top).strip()
         bot = str(bot).strip()
-        if i < 3:
+        
+        if i == 0:
+            # Cột đầu: "Shift"
             new_columns.append(top if 'Unnamed' not in top else bot)
         else:
-            day_name = top if 'Unnamed' not in top else ''
-            day_num  = bot if 'Unnamed' not in bot else ''
-            new_columns.append(f"{day_name}-{day_num}")
+            # Dùng date (row 2) làm key để tránh trùng tên
+            # bot = ngày (26, 27, 28...), top = thứ (Fri, Sat...)
+            date_val = bot if 'Unnamed' not in bot else top
+            day_val  = top if 'Unnamed' not in top else ''
+            new_columns.append(f"{day_val}_{date_val}" if day_val else date_val)
+    
     df.columns = new_columns
-    df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
-    new_columns = df.columns.tolist()
     data = df.to_dict(orient="records")
-    return render_template("man_power.html", data=data, columns=new_columns)  # ← truyền key
+    print("=== DATA (2 rows) ===")
+    for row in data[:2]:
+        print(row)
+    # Clean NaN
+    for row in data:
+        for k, v in row.items():
+            if pd.isna(v) if not isinstance(v, str) else False:
+                row[k] = ''
+    
+    return render_template("man_power7.html", data=data, columns=new_columns)
 
 @app.route("/month7/history", methods=["GET", "POST"])
 def month7_history():
