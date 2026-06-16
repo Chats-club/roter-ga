@@ -217,37 +217,48 @@
 
       // Xóa dòng này ↓
       // window.addEventListener("load", subscribePush);
-      //Tinh nang doc khi chuyen trang
+      //Tinh nang chuyen trang khi noi
       function speakAndGo(event, text, url) {
-        // Chặn chuyển trang ngay
         event.preventDefault();
 
-        // Nếu trình duyệt không hỗ trợ TTS thì chuyển trang luôn
         if (!window.speechSynthesis) {
           window.location.href = url;
           return;
         }
 
-        // Dừng TTS đang chạy nếu có
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-EN";
-        utterance.rate = 1.1;
-        utterance.volume = 1;
 
-        // Chuyển trang sau khi đọc xong
+        // Tối ưu hóa giọng đọc
+        const voices = window.speechSynthesis.getVoices();
+        // Ưu tiên chọn giọng Google hoặc giọng có tên "English"
+        const targetVoice =
+          voices.find((v) => v.name.includes("Google US English")) ||
+          voices.find((v) => v.lang === "en-US");
+        if (targetVoice) utterance.voice = targetVoice;
+
+        utterance.lang = "en-US"; // Dùng en-US thay vì en-EN
+        utterance.rate = 0.95; // Giảm tốc độ xuống một chút (1.1 thường quá nhanh gây mất tự nhiên)
+        utterance.pitch = 1; // Giữ nguyên hoặc điều chỉnh nhẹ (0.8 - 1.2)
+
         utterance.onend = () => {
           window.location.href = url;
         };
 
-        // Fallback: nếu TTS quá lâu (>3s) vẫn chuyển trang
+        // Xử lý lỗi nếu giọng không load kịp
         setTimeout(() => {
+          if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
           window.location.href = url;
-        }, 3000);
+        }, 5000);
 
         window.speechSynthesis.speak(utterance);
       }
+
+      // Lưu ý: Cần đợi sự kiện 'voiceschanged' để đảm bảo danh sách giọng đã load xong
+      window.speechSynthesis.onvoiceschanged = () => {
+        // Có thể lưu lại danh sách giọng vào biến global nếu cần
+      };
     </script>
   </body>
 </html>
