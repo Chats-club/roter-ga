@@ -98,6 +98,7 @@
           <a
             href="/month7"
             class="card-month d-flex align-items-center p-4 gap-3"
+            onclick="speakAndGo(event, 'Welcome you to month seven roster. Happy working day', '/month7')"
           >
             <div
               class="icon-box"
@@ -210,6 +211,36 @@
 
       // Xóa dòng này ↓
       // window.addEventListener("load", subscribePush);
+      function speakAndGo(event, text, url) {
+    // Chặn chuyển trang ngay
+    event.preventDefault();
+
+    // Nếu trình duyệt không hỗ trợ TTS thì chuyển trang luôn
+    if (!window.speechSynthesis) {
+      window.location.href = url;
+      return;
+    }
+
+    // Dừng TTS đang chạy nếu có
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    utterance.rate = 1.1;
+    utterance.volume = 1;
+
+    // Chuyển trang sau khi đọc xong
+    utterance.onend = () => {
+      window.location.href = url;
+    };
+
+    // Fallback: nếu TTS quá lâu (>3s) vẫn chuyển trang
+    setTimeout(() => {
+      window.location.href = url;
+    }, 3000);
+
+    window.speechSynthesis.speak(utterance);
+  }
     </script>
   </body>
 </html>
