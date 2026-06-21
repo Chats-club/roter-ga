@@ -153,22 +153,54 @@
     /* ===== Every-name rainbow text on the frozen Name column ===== */
     /* Cycles through 16 distinct hues so each staff name is its own
        color (Daisy red, Candy orange, Yenni yellow, ...) */
-    tbody tr:nth-child(16n+1) td:nth-child(1) { color: hsl(0, 75%, 45%) !important; }
-    tbody tr:nth-child(16n+2) td:nth-child(1) { color: hsl(23, 80%, 42%) !important; }
-    tbody tr:nth-child(16n+3) td:nth-child(1) { color: hsl(45, 80%, 38%) !important; }
-    tbody tr:nth-child(16n+4) td:nth-child(1) { color: hsl(68, 55%, 35%) !important; }
-    tbody tr:nth-child(16n+5) td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
-    tbody tr:nth-child(16n+6) td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
-    tbody tr:nth-child(16n+7) td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
-    tbody tr:nth-child(16n+8) td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
-    tbody tr:nth-child(16n+9) td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
-    tbody tr:nth-child(16n+10) td:nth-child(1) { color: hsl(210, 65%, 40%) !important; }
-    tbody tr:nth-child(16n+11) td:nth-child(1) { color: hsl(225, 65%, 45%) !important; }
-    tbody tr:nth-child(16n+12) td:nth-child(1) { color: hsl(248, 60%, 45%) !important; }
-    tbody tr:nth-child(16n+13) td:nth-child(1) { color: hsl(270, 55%, 42%) !important; }
-    tbody tr:nth-child(16n+14) td:nth-child(1) { color: hsl(293, 55%, 40%) !important; }
-    tbody tr:nth-child(16n+15) td:nth-child(1) { color: hsl(330, 60%, 40%) !important; }
-    tbody tr:nth-child(16n) td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
+    tbody tr:nth-child(16n + 1) td:nth-child(1) {
+      color: hsl(0, 75%, 45%) !important;
+    }
+    tbody tr:nth-child(16n + 2) td:nth-child(1) {
+      color: hsl(23, 80%, 42%) !important;
+    }
+    tbody tr:nth-child(16n + 3) td:nth-child(1) {
+      color: hsl(45, 80%, 38%) !important;
+    }
+    tbody tr:nth-child(16n + 4) td:nth-child(1) {
+      color: hsl(68, 55%, 35%) !important;
+    }
+    tbody tr:nth-child(16n + 5) td:nth-child(1) {
+      color: hsl(100, 55%, 32%) !important;
+    }
+    tbody tr:nth-child(16n + 6) td:nth-child(1) {
+      color: hsl(120, 55%, 30%) !important;
+    }
+    tbody tr:nth-child(16n + 7) td:nth-child(1) {
+      color: hsl(150, 55%, 30%) !important;
+    }
+    tbody tr:nth-child(16n + 8) td:nth-child(1) {
+      color: hsl(170, 55%, 30%) !important;
+    }
+    tbody tr:nth-child(16n + 9) td:nth-child(1) {
+      color: hsl(190, 60%, 35%) !important;
+    }
+    tbody tr:nth-child(16n + 10) td:nth-child(1) {
+      color: hsl(210, 65%, 40%) !important;
+    }
+    tbody tr:nth-child(16n + 11) td:nth-child(1) {
+      color: hsl(225, 65%, 45%) !important;
+    }
+    tbody tr:nth-child(16n + 12) td:nth-child(1) {
+      color: hsl(248, 60%, 45%) !important;
+    }
+    tbody tr:nth-child(16n + 13) td:nth-child(1) {
+      color: hsl(270, 55%, 42%) !important;
+    }
+    tbody tr:nth-child(16n + 14) td:nth-child(1) {
+      color: hsl(293, 55%, 40%) !important;
+    }
+    tbody tr:nth-child(16n + 15) td:nth-child(1) {
+      color: hsl(330, 60%, 40%) !important;
+    }
+    tbody tr:nth-child(16n) td:nth-child(1) {
+      color: hsl(345, 65%, 42%) !important;
+    }
     thead th {
       position: sticky !important;
       top: 0 !important;
@@ -192,10 +224,29 @@
       border-right: 1px solid black !important; /* cam đậm để phân biệt rõ */
     }
 
+    html,
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #74ebd5, #9face6);
+      margin: 0;
     }
+
+    /* Canvas gradient sits behind everything as a full-viewport backdrop */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      display: block;
+    }
+
+    .container-fluid,
+    form#shiftForm {
+      position: relative;
+      z-index: 1;
+    }
+
     #shiftForm {
       margin-top: 5px;
     }
@@ -205,6 +256,7 @@
     }
   </style>
   <body class="p-1">
+    <canvas id="bg"></canvas>
     <div class="container-fluid">
       <div class="topbar">
         <div class="topbar-left">
@@ -321,7 +373,9 @@
     <form action="/month7/history" method="POST" id="shiftForm">
       <div class="container d-flex justify-content-center mt-4">
         <div class="card shadow p-2 w-75">
-          <h5 class="mb-3">Shift Changing Request or PH, AL....</h5>
+          <h5 class="mb-3" style="color: #ff69b4">
+            Shift Changing Request or PH, AL....
+          </h5>
           <textarea
             name="text"
             id="requestText"
@@ -457,6 +511,54 @@
           )
           .join("");
       }
+
+      // ── BACKGROUND GRADIENT (canvas) ─────────────────────────────
+      // Replaces the old CSS `background: linear-gradient(135deg, ...)`.
+      // #bg canvas is fixed full-viewport behind all content (see CSS).
+
+      function getGradientCoords(angleDeg, width, height) {
+        const angle = ((angleDeg % 360) + 360) % 360;
+        const rad = (angle * Math.PI) / 180;
+        const length =
+          Math.abs(width * Math.sin(rad)) + Math.abs(height * Math.cos(rad));
+        const halfX = (Math.sin(rad) * length) / 2;
+        const halfY = (Math.cos(rad) * length) / 2;
+        const cx = width / 2;
+        const cy = height / 2;
+        return {
+          x0: cx - halfX,
+          y0: cy + halfY,
+          x1: cx + halfX,
+          y1: cy - halfY,
+        };
+      }
+
+      function drawBackground() {
+        const canvas = document.getElementById("bg");
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const { x0, y0, x1, y1 } = getGradientCoords(
+          135,
+          canvas.width,
+          canvas.height,
+        );
+        const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+        gradient.addColorStop(0, "#5e6b87");
+        gradient.addColorStop(0.35, "#c4cad6");
+        gradient.addColorStop(0.5, "#eef0f2");
+        gradient.addColorStop(0.7, "#c9cbcd");
+        gradient.addColorStop(1, "#16161a");
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      drawBackground();
+      window.addEventListener("resize", drawBackground);
     </script>
   </body>
 </html>
