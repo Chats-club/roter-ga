@@ -36,7 +36,7 @@
 html,
 body {
   font-family: var(--font);
-  background: var(--gray-100);
+  background: var(--gray-400);
   min-height: 100vh;
   color: var(--gray-800);
   font-size: 14px;
