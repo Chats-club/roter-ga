@@ -136,10 +136,9 @@
       left: 0;
       font-size: 8px !important;
       font-weight: bolder;
-      color: blue;
       text-align: left;
       width: 40px;
-      background: #fff;
+      background: #fff !important;
       text-shadow:
         0 1px 0 #ffffff,
         0 -1px 0 #0a1626;
@@ -150,6 +149,26 @@
       font-weight: bolder;
       text-align: left;
     }
+
+    /* ===== Every-name rainbow text on the frozen Name column ===== */
+    /* Cycles through 16 distinct hues so each staff name is its own
+       color (Daisy red, Candy orange, Yenni yellow, ...) */
+    tbody tr:nth-child(16n+1) td:nth-child(1) { color: hsl(0, 75%, 45%) !important; }
+    tbody tr:nth-child(16n+2) td:nth-child(1) { color: hsl(23, 80%, 42%) !important; }
+    tbody tr:nth-child(16n+3) td:nth-child(1) { color: hsl(45, 80%, 38%) !important; }
+    tbody tr:nth-child(16n+4) td:nth-child(1) { color: hsl(68, 55%, 35%) !important; }
+    tbody tr:nth-child(16n+5) td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
+    tbody tr:nth-child(16n+6) td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
+    tbody tr:nth-child(16n+7) td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
+    tbody tr:nth-child(16n+8) td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
+    tbody tr:nth-child(16n+9) td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
+    tbody tr:nth-child(16n+10) td:nth-child(1) { color: hsl(210, 65%, 40%) !important; }
+    tbody tr:nth-child(16n+11) td:nth-child(1) { color: hsl(225, 65%, 45%) !important; }
+    tbody tr:nth-child(16n+12) td:nth-child(1) { color: hsl(248, 60%, 45%) !important; }
+    tbody tr:nth-child(16n+13) td:nth-child(1) { color: hsl(270, 55%, 42%) !important; }
+    tbody tr:nth-child(16n+14) td:nth-child(1) { color: hsl(293, 55%, 40%) !important; }
+    tbody tr:nth-child(16n+15) td:nth-child(1) { color: hsl(330, 60%, 40%) !important; }
+    tbody tr:nth-child(16n) td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
     thead th {
       position: sticky !important;
       top: 0 !important;
