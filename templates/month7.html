@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#74ebd5" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Thêm vào thẻ <head> -->
 
     <title>Month 7</title>
     <link
@@ -22,233 +21,143 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
-      emailjs.init("ij7vRY53B5p5u2fWC"); // thay bằng Public Key của bạn
+      emailjs.init("ij7vRY53B5p5u2fWC"); 
     </script>
   </head>
   <style>
-    .sticky-table {
-      border-collapse: separate !important;
-      border-spacing: 0.1px !important;
+    html, body {
+      min-height: 100vh;
+      margin: 0;
+      background-color: #ffffff !important;
+      font-family: Calibri, "Segoe UI", Helvetica, Arial, sans-serif; /* Excel-like font */
     }
+
+    /* THE EXCEL GRID ENGINE */
+    .sticky-table {
+      border-collapse: separate !important; 
+      border-spacing: 0 !important; 
+      border: 1px solid #bbb !important; /* Outer frame */
+      margin-bottom: 0 !important;
+    }
+
     .table-wrapper {
       overflow: auto !important;
-      max-height: 95vh;
+      max-height: 90vh;
       width: 100%;
+      border: 1px solid #bbb; /* Ensures the right and bottom edges are closed */
     }
 
-    /* ===== Badge color palette (edit these to retune the whole table) ===== */
-    :root {
-      --off-bg: #4ade80;
-      --off-text: #064e1b;
-
-      --ph-bg: #c7d8ff;
-      --ph-text: #1e3a8a;
-
-      --al-bg: #ffd166;
-      --al-text: #9a3412;
-
-      --a2-bg: whitesmoke;
-      --a2-text: #5b21b6;
-
-      --b5-bg: whitesmoke;
-      --b5-text: #115e59;
-
-      --c6-bg: whitesmoke;
-      --c6-text: #9a3412;
-
-      --d5-bg: whitesmoke;
-      --d5-text: #9f1239;
-
-      --a8-bg: whitesmoke;
-      --a8-text: #1e293b;
-    }
-
-    /* ===== Badge base (shared) ===== */
-    td.has-o,
-    td.has-ph,
-    td.has-al,
-    td.has-a2,
-    td.has-b5,
-    td.has-c6,
-    td.has-d5,
-    td.has-a8 {
-      font-weight: 700;
+    /* All cells: top and left borders create the grid */
+    .sticky-table td, 
+    .sticky-table th {
+      border-top: 1px solid #ccc !important;
+      border-left: 1px solid #ccc !important;
+      padding: 0 !important;
       text-align: center;
-      border-radius: 25%;
+      font-size: 11px;
+      background-color: #fff !important;
+      color: #000;
+    }
+
+    /* ===== Badge color palette (Preserved) ===== */
+    :root {
+      --off-bg: #4ade80; --off-text: #064e1b;
+      --ph-bg: #c7d8ff; --ph-text: #1e3a8a;
+      --al-bg: #ffd166; --al-text: #9a3412;
+      --a2-bg: #f8f9fa; --a2-text: #5b21b6;
+      --b5-bg: #f8f9fa; --b5-text: #115e59;
+      --c6-bg: #f8f9fa; --c6-text: #9a3412;
+      --d5-bg: #f8f9fa; --d5-text: #9f1239;
+      --a8-bg: #f8f9fa; --a8-text: #1e293b;
+    }
+
+    td.has-o, td.has-ph, td.has-al, td.has-a2, td.has-b5, td.has-c6, td.has-d5, td.has-a8 {
+      font-weight: 700;
       letter-spacing: 0.2px;
     }
 
-    td.has-o {
-      background: var(--off-bg) !important;
-      color: var(--off-text) !important;
-    }
-    td.has-ph {
-      background: var(--ph-bg) !important;
-      color: var(--ph-text) !important;
-    }
-    td.has-al {
-      background: var(--al-bg) !important;
-      color: var(--al-text) !important;
-    }
-    td.has-a2 {
-      background: var(--a2-bg) !important;
-      color: var(--a2-text) !important;
-    }
-    td.has-b5 {
-      background: var(--b5-bg) !important;
-      color: var(--b5-text) !important;
-    }
-    td.has-c6 {
-      background: var(--c6-bg) !important;
-      color: var(--c6-text) !important;
-    }
-    td.has-d5 {
-      background: var(--d5-bg) !important;
-      color: var(--d5-text) !important;
-    }
-    td.has-a8 {
-      background: var(--a8-bg) !important;
-      color: var(--a8-text) !important;
-    }
+    td.has-o { background: var(--off-bg) !important; color: var(--off-text) !important; }
+    td.has-ph { background: var(--ph-bg) !important; color: var(--ph-text) !important; }
+    td.has-al { background: var(--al-bg) !important; color: var(--al-text) !important; }
+    td.has-a2 { background: var(--a2-bg) !important; color: var(--a2-text) !important; }
+    td.has-b5 { background: var(--b5-bg) !important; color: var(--b5-text) !important; }
+    td.has-c6 { background: var(--c6-bg) !important; color: var(--c6-text) !important; }
+    td.has-d5 { background: var(--d5-bg) !important; color: var(--d5-text) !important; }
+    td.has-a8 { background: var(--a8-bg) !important; color: var(--a8-text) !important; }
 
-    td,
-    th {
-      padding: 0.9px !important;
-      text-align: center;
-      font-size: 10px;
-    }
     td {
-      height: 16px;
-      line-height: 1.2;
-      padding: 3px 2px !important;
+      height: 22px;
+      line-height: 22px;
+      padding: 0 4px !important;
       vertical-align: middle;
     }
-    thead th {
-      position: sticky !important;
-      left: 0;
-      z-index: 15;
-      line-height: 1.2;
-      font-size: 8px !important;
-    }
-    tbody td:nth-child(1) {
-      position: sticky !important;
-      border-right: 1px solid black;
-      left: 0;
-      font-size: 9px !important;
-      font-weight: bolder;
-      text-align: left;
-      width: 40px;
-      background: #ffffff !important;
-      text-shadow:
-        0 1px 0 #ffffff,
-        0 -1px 0 #0a1626;
-    }
-    tbody td:nth-child(2) {
-      font-size: 7px !important;
-      color: rgb(135, 5, 5);
-      font-weight: bolder;
-      text-align: left;
-    }
 
-    /* ===== Every-name rainbow text on the frozen Name column ===== */
-    /* Cycles through 16 distinct hues so each staff name is its own
-       color (Daisy red, Candy orange, Yenni yellow, ...) */
-    tbody tr:nth-child(16n + 1) td:nth-child(1) {
-      color: hsl(0, 75%, 45%) !important;
-    }
-    tbody tr:nth-child(16n + 2) td:nth-child(1) {
-      color: hsl(23, 80%, 42%) !important;
-    }
-    tbody tr:nth-child(16n + 3) td:nth-child(1) {
-      color: hsl(45, 80%, 38%) !important;
-    }
-    tbody tr:nth-child(16n + 4) td:nth-child(1) {
-      color: hsl(68, 55%, 35%) !important;
-    }
-    tbody tr:nth-child(16n + 5) td:nth-child(1) {
-      color: hsl(100, 55%, 32%) !important;
-    }
-    tbody tr:nth-child(16n + 6) td:nth-child(1) {
-      color: hsl(120, 55%, 30%) !important;
-    }
-    tbody tr:nth-child(16n + 7) td:nth-child(1) {
-      color: hsl(150, 55%, 30%) !important;
-    }
-    tbody tr:nth-child(16n + 8) td:nth-child(1) {
-      color: hsl(170, 55%, 30%) !important;
-    }
-    tbody tr:nth-child(16n + 9) td:nth-child(1) {
-      color: hsl(190, 60%, 35%) !important;
-    }
-    tbody tr:nth-child(16n + 10) td:nth-child(1) {
-      color: hsl(210, 65%, 40%) !important;
-    }
-    tbody tr:nth-child(16n + 11) td:nth-child(1) {
-      color: hsl(225, 65%, 45%) !important;
-    }
-    tbody tr:nth-child(16n + 12) td:nth-child(1) {
-      color: hsl(248, 60%, 45%) !important;
-    }
-    tbody tr:nth-child(16n + 13) td:nth-child(1) {
-      color: hsl(270, 55%, 42%) !important;
-    }
-    tbody tr:nth-child(16n + 14) td:nth-child(1) {
-      color: hsl(293, 55%, 40%) !important;
-    }
-    tbody tr:nth-child(16n + 15) td:nth-child(1) {
-      color: hsl(330, 60%, 40%) !important;
-    }
-    tbody tr:nth-child(16n) td:nth-child(1) {
-      color: hsl(345, 65%, 42%) !important;
-    }
+    /* EXCEL HEADER STYLE */
     thead th {
       position: sticky !important;
       top: 0 !important;
-      z-index: 5 !important;
-      background: #212529 !important;
-      color: #fff !important;
-      text-shadow:
-        0 -1px 0 rgba(0, 0, 0, 0.6),
-        0 1px 0 rgba(255, 255, 255, 0.15);
+      z-index: 10 !important;
+      background: #e2e2e2 !important; /* Light gray like Excel headers */
+      color: #333 !important;
+      font-weight: 600;
+      text-shadow: none !important;
+      font-size: 10px !important;
+      border-bottom: 1px solid #bbb !important;
     }
 
-    /* Thêm cái này - góc trái trên cùng */
+    /* FROZEN COLUMN (Name) */
+    tbody td:nth-child(1) {
+      position: sticky !important;
+      left: 0;
+      z-index: 5 !important;
+      background: #ffffff !important;
+      font-weight: bold;
+      text-align: left;
+      width: 80px;
+      border-right: 2px solid #999 !important; /* Thicker line to separate frozen column */
+    }
+
+    /* SECOND COLUMN (ID) */
+    tbody td:nth-child(2) {
+      font-size: 9px !important;
+      color: rgb(135, 5, 5);
+      font-weight: bolder;
+      text-align: left;
+      border-right: 1px solid #ccc !important;
+    }
+
+    /* Header Frozen Cell */
     thead th:nth-child(1) {
       left: 0 !important;
-      z-index: 10 !important; /* cao hơn các th khác */
+      z-index: 11 !important;
+      border-right: 2px solid #999 !important;
     }
 
-    /* Viền đậm tách biệt sau cột 4 */
+    /* Rainbow Text (Preserved) */
+    tbody tr:nth-child(16n + 1) td:nth-child(1) { color: hsl(0, 75%, 45%) !important; }
+    tbody tr:nth-child(16n + 2) td:nth-child(1) { color: hsl(23, 80%, 42%) !important; }
+    tbody tr:nth-child(16n + 3) td:nth-child(1) { color: hsl(45, 80%, 38%) !important; }
+    tbody tr:nth-child(16n + 4) td:nth-child(1) { color: hsl(68, 55%, 35%) !important; }
+    tbody tr:nth-child(16n + 5) td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
+    tbody tr:nth-child(16n + 6) td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 7) td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 8) td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 9) td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
+    tbody tr:nth-child(16n + 10) td:nth-child(1) { color: hsl(210, 65%, 40%) !important; }
+    tbody tr:nth-child(16n + 11) td:nth-child(1) { color: hsl(225, 65%, 45%) !important; }
+    tbody tr:nth-child(16n + 12) td:nth-child(1) { color: hsl(248, 60%, 45%) !important; }
+    tbody tr:nth-child(16n + 13) td:nth-child(1) { color: hsl(270, 55%, 42%) !important; }
+    tbody tr:nth-child(16n + 14) td:nth-child(1) { color: hsl(293, 55%, 40%) !important; }
+    tbody tr:nth-child(16n + 15) td:nth-child(1) { color: hsl(330, 60%, 40%) !important; }
+    tbody tr:nth-child(16n) td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
 
-    tbody td:nth-child(2) {
-      border-right: 1px solid black !important; /* cam đậm để phân biệt rõ */
-    }
-
-    html,
-    body {
-      min-height: 100vh;
-      margin: 0;
-    }
-
-    /* Canvas gradient sits behind everything as a full-viewport backdrop */
-    #bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      display: block;
-    }
-
-    .container-fluid,
-    form#shiftForm {
+    .container-fluid, form#shiftForm {
       position: relative;
       z-index: 1;
     }
 
     #shiftForm {
-      margin-top: 5px;
+      margin-top: 20px;
     }
     .badge {
       color: tomato;
@@ -256,7 +165,6 @@
     }
   </style>
   <body class="p-1">
-    <canvas id="bg"></canvas>
     <div class="container-fluid">
       <div class="topbar">
         <div class="topbar-left">
@@ -267,72 +175,33 @@
           <span class="badge">26/06 – 25/07/2026</span>
         </div>
       </div>
-      <!-- SEARCH & FILTER TOOLBAR -->
+
       <div class="toolbar">
         <div class="search-wrap">
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 21l-4.35-4.35"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
           </svg>
-          <input
-            class="search-input"
-            type="search"
-            placeholder="Search staff name or ID…"
-            id="searchInput"
-            oninput="filterRows()"
-          />
+          <input class="search-input" type="search" placeholder="Search staff name or ID…" id="searchInput" oninput="filterRows()" />
         </div>
         <button class="filter-btn">
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3 4h18M7 8h10M11 12h2"
-            />
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M7 8h10M11 12h2" />
           </svg>
           Filter
         </button>
         <button class="manpower-btn">
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
-            />
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
           </svg>
           <a href="/man_power7">Man Power</a>
         </button>
       </div>
 
       <div class="table-wrapper">
-        <table
-          class="table table-bordered table-striped table-hover align-middle sticky-table"
-        >
-          <thead class="table-dark">
+        <table class="table align-middle sticky-table">
+          <thead>
             <tr>
               {% for col in columns %}
               <th>{{ col }}</th>
@@ -342,11 +211,12 @@
           <tbody>
             {% for row in data %}
             <tr>
-              {% for col in columns %} {% set val = row.get(col, '') %} {% if
-              val is none or val == 'nan' or val != val %}
+              {% for col in columns %} 
+              {% set val = row.get(col, '') %} 
+              {% if val is none or val == 'nan' or val != val %}
               <td></td>
               {% elif val == 'O' %}
-              <td class="has-o"></td>
+              <td class="has-o">O</td>
               {% elif val == 'PH' %}
               <td class="has-ph">PH</td>
               {% elif val == 'AL' %}
@@ -363,94 +233,66 @@
               <td class="has-a8">A8</td>
               {% else %}
               <td>{{ val }}</td>
-              {% endif %} {% endfor %}
+              {% endif %} 
+              {% endfor %}
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+
     <form action="/month7/history" method="POST" id="shiftForm">
       <div class="container d-flex justify-content-center mt-4">
         <div class="card shadow p-2 w-75">
           <h5 class="mb-3" style="color: #ff69b4">
             Shift Changing Request or PH, AL....
           </h5>
-          <textarea
-            name="text"
-            id="requestText"
-            class="form-control mb-3"
-            rows="5"
-          ></textarea>
+          <textarea name="text" id="requestText" class="form-control mb-3" rows="5"></textarea>
           <div class="d-flex justify-content-between">
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="handleSubmit()"
-            >
-              Submit
-            </button>
-            <a href="/month7/history" class="btn btn-outline-secondary"
-              >History</a
-            >
+            <button type="button" class="btn btn-primary" onclick="handleSubmit()">Submit</button>
+            <a href="/month7/history" class="btn btn-outline-secondary">History</a>
           </div>
         </div>
       </div>
     </form>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       function handleSubmit() {
         const message = document.getElementById("requestText").value;
-
         if (!message.trim()) {
           alert("Vui lòng nhập nội dung request!");
           return;
         }
-
         const templateParams = {
-          name: "Nhân viên", // {{name}} trong template
-          message: message, // {{message}} trong template
-          time: new Date().toLocaleString("vi-VN"), // {{time}} trong template
+          name: "Nhân viên",
+          message: message,
+          time: new Date().toLocaleString("vi-VN"),
         };
-
-        emailjs
-          .send("service_paa96fd", "template_x6vqwo1", templateParams)
-          .then(() => {
-            // Gửi email xong → submit form lên server
-            document.getElementById("shiftForm").submit();
-          })
+        emailjs.send("service_paa96fd", "template_x6vqwo1", templateParams)
+          .then(() => { document.getElementById("shiftForm").submit(); })
           .catch((error) => {
             console.error("EmailJS error:", error);
-            // Vẫn submit form dù email lỗi
             document.getElementById("shiftForm").submit();
           });
       }
 
-      // ── DOM FILTER (instant, no server round-trip) ─────────────
-      // Works on the already-rendered Jinja2 table rows.
       let debounceTimer = null;
-
       function filterRows() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-          const q = document
-            .getElementById("searchInput")
-            .value.trim()
-            .toLowerCase();
+          const q = document.getElementById("searchInput").value.trim().toLowerCase();
           const rows = document.querySelectorAll("tbody tr");
           let visible = 0;
-
           rows.forEach((row) => {
-            // col 0 = E.Name (nickname), col 1 = ID, col 2 = full name
             const name = row.cells[0]?.textContent.toLowerCase() ?? "";
             const id = row.cells[1]?.textContent.toLowerCase() ?? "";
             const sub = row.cells[2]?.textContent.toLowerCase() ?? "";
-            const match =
-              !q || name.includes(q) || id.includes(q) || sub.includes(q);
+            const match = !q || name.includes(q) || id.includes(q) || sub.includes(q);
             row.style.display = match ? "" : "none";
             if (match) visible++;
           });
-
           updateResultsBar(visible, q);
         }, 200);
       }
@@ -460,30 +302,21 @@
         if (!bar) {
           bar = document.createElement("div");
           bar.id = "resultsBar";
-          bar.style.cssText =
-            "font-size:11px;color:#555;padding:4px 8px;background:#f8f8f8;border-bottom:1px solid #ddd;";
+          bar.style.cssText = "font-size:11px;color:#555;padding:4px 8px;background:#f8f8f8;border-bottom:1px solid #ddd;";
           document.querySelector(".table-wrapper").before(bar);
         }
         bar.style.display = q ? "block" : "none";
-        bar.textContent = q
-          ? `Showing ${count} result${count !== 1 ? "s" : ""} for "${q}"`
-          : "";
+        bar.textContent = q ? `Showing ${count} result${count !== 1 ? "s" : ""} for "${q}"` : "";
       }
 
-      // ── SERVER FETCH (for dynamic/paginated use later) ──────────
-      // Call this if you want to replace the table with API data instead.
-
       let currentRequest = null;
-
       async function fetchRoster(search = "", shifts = "") {
         if (currentRequest) currentRequest.abort();
         currentRequest = new AbortController();
-
         const params = new URLSearchParams();
         if (search) params.set("search", search);
         if (shifts) params.set("shifts", shifts);
         const url = `/api/roster${params.toString() ? "?" + params : ""}`;
-
         try {
           const res = await fetch(url, { signal: currentRequest.signal });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -497,68 +330,10 @@
 
       function renderTable(staffArray) {
         const tbody = document.querySelector("tbody");
-        // staffArray rows must match your column order
-        tbody.innerHTML = staffArray
-          .map(
-            (row) =>
-              `<tr>${Object.values(row)
-                .map((v) =>
-                  v === "O"
-                    ? `<td class="has-o">O</td>`
-                    : `<td>${v ?? ""}</td>`,
-                )
-                .join("")}</tr>`,
-          )
-          .join("");
+        tbody.innerHTML = staffArray.map(row => 
+          `<tr>${Object.values(row).map(v => v === "O" ? `<td class="has-o">O</td>` : `<td>${v ?? ""}</td>`).join("")}</tr>`
+        ).join("");
       }
-
-      // ── BACKGROUND GRADIENT (canvas) ─────────────────────────────
-      // Replaces the old CSS `background: linear-gradient(135deg, ...)`.
-      // #bg canvas is fixed full-viewport behind all content (see CSS).
-
-      function getGradientCoords(angleDeg, width, height) {
-        const angle = ((angleDeg % 360) + 360) % 360;
-        const rad = (angle * Math.PI) / 180;
-        const length =
-          Math.abs(width * Math.sin(rad)) + Math.abs(height * Math.cos(rad));
-        const halfX = (Math.sin(rad) * length) / 2;
-        const halfY = (Math.cos(rad) * length) / 2;
-        const cx = width / 2;
-        const cy = height / 2;
-        return {
-          x0: cx - halfX,
-          y0: cy + halfY,
-          x1: cx + halfX,
-          y1: cy - halfY,
-        };
-      }
-
-      function drawBackground() {
-        const canvas = document.getElementById("bg");
-        if (!canvas) return;
-
-        const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const { x0, y0, x1, y1 } = getGradientCoords(
-          135,
-          canvas.width,
-          canvas.height,
-        );
-        const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
-        gradient.addColorStop(0, "#5e6b87");
-        gradient.addColorStop(0.35, "#c4cad6");
-        gradient.addColorStop(0.5, "#eef0f2");
-        gradient.addColorStop(0.7, "#c9cbcd");
-        gradient.addColorStop(1, "#16161a");
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-
-      drawBackground();
-      window.addEventListener("resize", drawBackground);
     </script>
   </body>
 </html>
