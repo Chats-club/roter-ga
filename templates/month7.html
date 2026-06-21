@@ -36,23 +36,92 @@
       width: 100%;
     }
 
-    /* thêm vào phần style cũ */
+    /* ===== Badge text base (3D / embossed look, shared) ===== */
+    td.has-o,
+    td.has-ph,
+    td.has-al,
+    td.has-a2,
+    td.has-b5,
+    td.has-c6,
+    td.has-d5,
+    td.has-a8 {
+      font-weight: 800;
+      text-align: center;
+      border-radius: 3px;
+      letter-spacing: 0.2px;
+    }
 
+    /* OFF day */
     td.has-o {
-      background-color: #4caf50 !important;
-      color: white !important;
-      font-weight: bolder;
-      text-align: center;
+      background-color: #71f368 !important;
+      color: #ebd510 !important;
+      text-shadow:
+        0 1px 0 #2e7d32,
+        0 2px 0 #1b5e20,
+        0 3px 4px rgba(0, 0, 0, 0.4);
     }
+
+    /* Public Holiday */
     td.has-ph {
+      background-color: #dbe6ff !important;
       color: #1536c6 !important;
-      font-weight: bolder;
-      text-align: center;
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #0a1f7a;
     }
+
+    /* Annual Leave */
     td.has-al {
-      color: #f6070b !important;
-      font-weight: bolder;
-      text-align: center;
+      background-color: #fff3cd !important;
+      color: #c40006 !important;
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #7a0004;
+    }
+
+    /* ===== Shift code badges: A2 / B5 / C6 / D5 / A8 ===== */
+    /* Each shift gets its own hue so they're instantly distinguishable
+       at a glance, with the same embossed text-shadow treatment as
+       O / PH / AL so the whole table reads consistently. */
+
+    td.has-a2 {
+      background-color: #ede9fe !important; /* light violet */
+      color: #5b21b6 !important; /* deep violet */
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #3b0764;
+    }
+
+    td.has-b5 {
+      background-color: #d7f5f3 !important; /* light teal */
+      color: #0e7c75 !important; /* deep teal */
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #053b37;
+    }
+
+    td.has-c6 {
+      background-color: #ffe8d6 !important; /* light amber */
+      color: #b1530a !important; /* deep amber/orange */
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #5c2900;
+    }
+
+    td.has-d5 {
+      background-color: #fde2ec !important; /* light rose */
+      color: #b3124a !important; /* deep rose */
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #5c0922;
+    }
+
+    td.has-a8 {
+      background-color: #e3eaf2 !important; /* light slate blue */
+      color: #1e3a5f !important; /* deep navy */
+      text-shadow:
+        0 1px 0 #ffffff,
+        0 -1px 0 #0a1626;
     }
 
     td,
@@ -91,7 +160,7 @@
       border-right: 1px solid black;
       left: 0;
       font-size: 8px !important;
-      font-weight:bolder;
+      font-weight: bolder;
       color: blue;
       text-align: left;
       width: 40px;
@@ -115,6 +184,7 @@
       z-index: 5 !important;
       background: #212529 !important;
       color: #fff !important;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.15);
     }
 
     /* Thêm cái này - góc trái trên cùng */
@@ -209,7 +279,7 @@
               d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
             />
           </svg>
-         <a href="/man_power7">Man Power</a> 
+          <a href="/man_power7">Man Power</a>
         </button>
       </div>
       <!-- <div class="card shadow-sm">
@@ -245,6 +315,16 @@
               <td class="has-ph">PH</td>
               {% elif val == 'AL' %}
               <td class="has-al">AL</td>
+              {% elif val == 'A2' %}
+              <td class="has-a2">A2</td>
+              {% elif val == 'B5' %}
+              <td class="has-b5">B5</td>
+              {% elif val == 'C6' %}
+              <td class="has-c6">C6</td>
+              {% elif val == 'D5' %}
+              <td class="has-d5">D5</td>
+              {% elif val == 'A8' %}
+              <td class="has-a8">A8</td>
               {% else %}
               <td>{{ val }}</td>
               {% endif %} {% endfor %}
