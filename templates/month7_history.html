@@ -1,30 +1,362 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <link rel="manifest" href="/static/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GA Roster" />
+    <link rel="apple-touch-icon" href="/static/images/icon-192.png" />
+    <meta name="theme-color" content="#74ebd5" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Month7-History</title>
-
-    <!-- Bootstrap -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <title>Month 7</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>emailjs.init("ij7vRY53B5p5u2fWC");</script>
   </head>
-  <body class="p-4">
-    <div class="container">
-      <h2 class="mb-4 text-center">📋 Month 7 Request History</h2>
+  <style>
+    html, body {
+      min-height: 100vh;
+      margin: 0;
+      background-color: #ffffff !important;
+      font-family: Calibri, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
 
-      <a href="/month7" class="btn btn-secondary mb-3">← Back</a>
+    .sticky-table {
+      border-collapse: separate !important;
+      border-spacing: 0 2px !important;   /* ← row gap */
+      border: 1px solid #bbb !important;
+      margin-bottom: 0 !important;
+    }
 
-      <ul class="list-group">
-        {% for item in data %}
-        <li class="list-group-item">
-          <span class="text-muted small">[{{ item.time }}]</span>
-          <span class="ms-2">{{ item.text }}</span>
-        </li>
-        {% endfor %}
-      </ul>
+    .table-wrapper {
+      overflow: auto !important;
+      max-height: 90vh;
+      width: 100%;
+      border: 1px solid #bbb;
+    }
+
+    .sticky-table td,
+    .sticky-table th {
+      border-top: 1px solid #ccc !important;
+      border-left: 1px solid #ccc !important;
+      padding: 0 !important;
+      text-align: center;
+      font-size: 11px;
+      background-color: #fff !important;
+      color: #000;
+    }
+
+    /* first td of each row: no top border so gap is clean */
+    tbody tr td {
+      border-top: none !important;
+      border-bottom: none !important;
+    }
+
+    .sticky-table td:nth-child(7n+5),
+    .sticky-table th:nth-child(7n+5) {
+      border-right: 1.5px solid #666 !important;
+    }
+
+    /* ===== Shift badge colors — all black text ===== */
+    td.has-o {
+      background: #c8c8c8 !important;
+      color: #555 !important;
+      font-size: 9px !important;
+      font-weight: 400 !important;
+    }
+    td.has-ph {
+      background: #b8d4f8 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+    }
+    td.has-al {
+      background: #ffd166 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+    }
+    /* A2 — mint green */
+    td.has-a2 {
+      background: #b7f0d4 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.12);
+    }
+    /* B5 — sky blue */
+    td.has-b5 {
+      background: #aee3f7 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.12);
+    }
+    /* C6 — peach */
+    td.has-c6 {
+      background: #ffc8a2 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.12);
+    }
+    /* D5 — lavender */
+    td.has-d5 {
+      background: #d4bbf7 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.12);
+    }
+    /* A8 — lime yellow */
+    td.has-a8 {
+      background: #e2f5a0 !important;
+      color: #000 !important;
+      font-weight: 700 !important;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 0 rgba(0,0,0,0.12);
+    }
+
+    td {
+      height: 17.3px;
+      line-height: 1.2;
+      padding: 3px 2px !important;
+      vertical-align: middle;
+    }
+
+    thead th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 10 !important;
+      background: #e2e2e2 !important;
+      color: #333 !important;
+      font-weight: 600;
+      text-shadow: none !important;
+      font-size: 10px !important;
+      border-bottom: 1px solid #bbb !important;
+    }
+
+    tbody td:nth-child(1) {
+      position: sticky !important;
+      left: 0;
+      z-index: 5 !important;
+      background: #ffffff !important;
+      font-weight: bold;
+      text-align: left;
+      width: 80px;
+      border-right: 3px solid #760505 !important;
+      border-radius: 3px 0 0 3px;
+    }
+
+    tbody td:last-child {
+      border-radius: 0 3px 3px 0;
+    }
+
+    tbody td:nth-child(2) {
+      font-size: 9px !important;
+      color: rgb(51, 46, 46);
+      font-weight: bolder;
+      text-align: left;
+      border-right: 1px solid #ccc !important;
+    }
+
+    thead th:nth-child(1) {
+      left: 0 !important;
+      z-index: 11 !important;
+      border-right: 2px solid #999 !important;
+    }
+
+    /* Rainbow name text */
+    tbody tr:nth-child(16n + 1)  td:nth-child(1) { color: hsl(0,   75%, 45%) !important; }
+    tbody tr:nth-child(16n + 2)  td:nth-child(1) { color: hsl(23,  80%, 42%) !important; }
+    tbody tr:nth-child(16n + 3)  td:nth-child(1) { color: hsl(45,  80%, 38%) !important; }
+    tbody tr:nth-child(16n + 4)  td:nth-child(1) { color: hsl(68,  55%, 35%) !important; }
+    tbody tr:nth-child(16n + 5)  td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
+    tbody tr:nth-child(16n + 6)  td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 7)  td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 8)  td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 9)  td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
+    tbody tr:nth-child(16n + 10) td:nth-child(1) { color: hsl(210, 65%, 40%) !important; }
+    tbody tr:nth-child(16n + 11) td:nth-child(1) { color: hsl(225, 65%, 45%) !important; }
+    tbody tr:nth-child(16n + 12) td:nth-child(1) { color: hsl(248, 60%, 45%) !important; }
+    tbody tr:nth-child(16n + 13) td:nth-child(1) { color: hsl(270, 55%, 42%) !important; }
+    tbody tr:nth-child(16n + 14) td:nth-child(1) { color: hsl(293, 55%, 40%) !important; }
+    tbody tr:nth-child(16n + 15) td:nth-child(1) { color: hsl(330, 60%, 40%) !important; }
+    tbody tr:nth-child(16n)      td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
+
+    .container-fluid, form#shiftForm { position: relative; z-index: 1; }
+    #shiftForm { margin-top: 20px; }
+    .badge { color: tomato; font-size: 16px; }
+  </style>
+  <body class="p-1">
+    <div class="container-fluid">
+      <div class="topbar">
+        <div class="topbar-left">
+          <a href="/" class="btn-home">Home</a>
+          <span class="page-title">Roster Month 7</span>
+        </div>
+        <div class="topbar-right">
+          <span class="badge">26/06 – 25/07/2026</span>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input class="search-input" type="search" placeholder="Search staff name or ID…" id="searchInput" oninput="filterRows()" />
+        </div>
+        <button class="filter-btn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M7 8h10M11 12h2" />
+          </svg>
+          Filter
+        </button>
+        <button class="manpower-btn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <a href="/man_power7">Man Power</a>
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table align-middle sticky-table">
+          <thead>
+            <tr>
+              {% for col in columns %}
+              <th>{{ col }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+            <tr>
+              {% for col in columns %}
+              {% set val = row.get(col, '') %}
+              {% if val is none or val == 'nan' or val != val %}
+              <td></td>
+              {% elif val == 'O' %}
+              <td class="has-o">O</td>
+              {% elif val == 'PH' %}
+              <td class="has-ph">PH</td>
+              {% elif val == 'AL' %}
+              <td class="has-al">AL</td>
+              {% elif val == 'A2' %}
+              <td class="has-a2">A2</td>
+              {% elif val == 'B5' %}
+              <td class="has-b5">B5</td>
+              {% elif val == 'C6' %}
+              <td class="has-c6">C6</td>
+              {% elif val == 'D5' %}
+              <td class="has-d5">D5</td>
+              {% elif val == 'A8' %}
+              <td class="has-a8">A8</td>
+              {% else %}
+              <td>{{ val }}</td>
+              {% endif %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
+
+    <form action="/month7/history" method="POST" id="shiftForm">
+      <div class="container d-flex justify-content-center mt-4">
+        <div class="card shadow p-2 w-75">
+          <h5 class="mb-3" style="color: #ff69b4">
+            Shift Changing Request or PH, AL....
+          </h5>
+          <textarea name="text" id="requestText" class="form-control mb-3" rows="5"></textarea>
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-primary" onclick="handleSubmit()">Submit</button>
+            <a href="/month7/history" class="btn btn-outline-secondary">History</a>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function handleSubmit() {
+        const message = document.getElementById("requestText").value;
+        if (!message.trim()) {
+          alert("Vui lòng nhập nội dung request!");
+          return;
+        }
+        const templateParams = {
+          name: "Nhân viên",
+          message: message,
+          time: new Date().toLocaleString("vi-VN"),
+        };
+        emailjs.send("service_paa96fd", "template_x6vqwo1", templateParams)
+          .then(() => { document.getElementById("shiftForm").submit(); })
+          .catch((error) => {
+            console.error("EmailJS error:", error);
+            document.getElementById("shiftForm").submit();
+          });
+      }
+
+      let debounceTimer = null;
+      function filterRows() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          const q = document.getElementById("searchInput").value.trim().toLowerCase();
+          const rows = document.querySelectorAll("tbody tr");
+          let visible = 0;
+          rows.forEach((row) => {
+            const name = row.cells[0]?.textContent.toLowerCase() ?? "";
+            const id   = row.cells[1]?.textContent.toLowerCase() ?? "";
+            const sub  = row.cells[2]?.textContent.toLowerCase() ?? "";
+            const match = !q || name.includes(q) || id.includes(q) || sub.includes(q);
+            row.style.display = match ? "" : "none";
+            if (match) visible++;
+          });
+          updateResultsBar(visible, q);
+        }, 200);
+      }
+
+      function updateResultsBar(count, q) {
+        let bar = document.getElementById("resultsBar");
+        if (!bar) {
+          bar = document.createElement("div");
+          bar.id = "resultsBar";
+          bar.style.cssText = "font-size:11px;color:#555;padding:4px 8px;background:#f8f8f8;border-bottom:1px solid #ddd;";
+          document.querySelector(".table-wrapper").before(bar);
+        }
+        bar.style.display = q ? "block" : "none";
+        bar.textContent = q ? `Showing ${count} result${count !== 1 ? "s" : ""} for "${q}"` : "";
+      }
+
+      let currentRequest = null;
+      async function fetchRoster(search = "", shifts = "") {
+        if (currentRequest) currentRequest.abort();
+        currentRequest = new AbortController();
+        const params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (shifts) params.set("shifts", shifts);
+        const url = `/api/roster${params.toString() ? "?" + params : ""}`;
+        try {
+          const res = await fetch(url, { signal: currentRequest.signal });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          renderTable(data.staff ?? data);
+        } catch (err) {
+          if (err.name === "AbortError") return;
+          console.error("fetchRoster error:", err.message);
+        }
+      }
+
+      function renderTable(staffArray) {
+        const classMap = { O:"has-o", PH:"has-ph", AL:"has-al", A2:"has-a2", B5:"has-b5", C6:"has-c6", D5:"has-d5", A8:"has-a8" };
+        const tbody = document.querySelector("tbody");
+        tbody.innerHTML = staffArray.map(row =>
+          `<tr>${Object.values(row).map(v => {
+            const cls = classMap[v];
+            return cls ? `<td class="${cls}">${v}</td>` : `<td>${v ?? ""}</td>`;
+          }).join("")}</tr>`
+        ).join("");
+      }
+    </script>
   </body>
 </html>
