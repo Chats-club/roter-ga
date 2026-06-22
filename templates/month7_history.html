@@ -9,8 +9,8 @@
     />
     <style>
       body {
-        background: #111;
-        color: #f1f1f1;
+        background: whitesmoke;
+        color: #111;
       }
 
       .history-list {
@@ -20,35 +20,42 @@
       }
 
       .history-row {
-        display: flex;
-        gap: 12px;
-        background: #1a1a1a;
-        border: 1px solid #333;
+        background: #fff;
+        border: 1px solid #ddd;
         border-radius: 16px;
         padding: 12px;
       }
 
       .time-box {
         min-width: 130px;
-        border: 1px solid #444;
+        border: 1px solid #ccc;
         border-radius: 12px;
         padding: 10px 14px;
         font-family: monospace;
-        font-size: 1.8rem; /* tăng từ 1.1rem */
-        color: #ccc;
+        font-size: 1.8rem;
+        color: #444;
         text-align: center;
         line-height: 1.5;
-        background: #222;
+        background: #f3f4f6;
       }
 
       .text-box {
         flex: 1;
-        border: 1px solid #444;
+        border: 1px solid #ccc;
         border-radius: 12px;
         padding: 10px 16px;
-        font-size: 1.8rem; /* tăng từ 1.15rem */
-        background: #222;
-        color: #f1f1f1;
+        font-size: 1.8rem;
+        background: #f3f4f6;
+        color: #111;
+      }
+
+      .section-label {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 6px 20px;
+        font-size: 1rem;
+        color: #555;
+        background: #fff;
       }
 
       .section-label {
@@ -62,23 +69,22 @@
     </style>
   </head>
   <body>
-    <div class="container py-4" style="max-width: 750px">
+    <div class="container py-4" style="max-width: 850px">
       <!-- Header -->
       <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/month7" class="btn btn-secondary btn-sm">← Back</a>
-        <h2 class="mb-0">📋 Lịch sử tháng 7</h2>
+        <a href="/month7" class="btn btn-secondary">← Back</a>
+        <h1 class="mb-0">📋 Lịch sử tháng 7</h1>
       </div>
 
-      <!-- Form -->
       <form method="POST" class="d-flex gap-2 mb-4">
         <input
           type="text"
           name="text"
           placeholder="Nhập ghi chú..."
           required
-          class="form-control"
+          class="form-control form-control-lg"
         />
-        <button type="submit" class="btn btn-primary px-4">Thêm</button>
+        <button type="submit" class="btn btn-primary btn-lg px-4">Thêm</button>
       </form>
 
       <!-- Column Labels -->
