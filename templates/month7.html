@@ -9,11 +9,20 @@
     <meta name="theme-color" content="#74ebd5" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Month 7</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/home.css') }}"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script>emailjs.init("ij7vRY53B5p5u2fWC");</script>
+    <script>
+      emailjs.init("ij7vRY53B5p5u2fWC"); 
+    </script>
   </head>
   <style>
     html, body {
@@ -23,9 +32,10 @@
       font-family: Calibri, "Segoe UI", Helvetica, Arial, sans-serif;
     }
 
+    /* THE EXCEL GRID ENGINE */
     .sticky-table {
-      border-collapse: separate !important;
-      border-spacing: 0 !important;
+      border-collapse: separate !important; 
+      border-spacing: 0 !important; 
       border: 1px solid #bbb !important;
       margin-bottom: 0 !important;
     }
@@ -37,7 +47,7 @@
       border: 1px solid #bbb;
     }
 
-    .sticky-table td,
+    .sticky-table td, 
     .sticky-table th {
       border-top: 1px solid #ccc !important;
       border-left: 1px solid #ccc !important;
@@ -48,16 +58,20 @@
       color: #000;
     }
 
-    .sticky-table td:nth-child(7n+5),
+    /* ============================================================
+       BOLDER SUNDAY BORDER 
+       Change '10' to the column number of your first Sunday.
+       If Sunday is the 4th column, use (7n+4). 
+       If Sunday is the 10th column, use (7n+10).
+       ============================================================ */
+    .sticky-table td:nth-child(7n+5), 
     .sticky-table th:nth-child(7n+5) {
-      border-right: 1.5px solid #666 !important;
+      border-right: 1.5px solid #666 !important; 
     }
 
     /* ===== Badge color palette ===== */
     :root {
-      /* O = OFF: dark slate, white bold text — pops immediately */
-      --off-bg: #4a5568; --off-text: #ffffff;
-
+      --off-bg: #a2f3bb; --off-text: #064e1b;
       --ph-bg: #c7d8ff; --ph-text: #1e3a8a;
       --al-bg: #ffd166; --al-text: #9a3412;
       --a2-bg: #f8f9fa; --a2-text: #5b21b6;
@@ -68,11 +82,11 @@
     }
 
     td.has-o, td.has-ph, td.has-al, td.has-a2, td.has-b5, td.has-c6, td.has-d5, td.has-a8 {
-      font-weight: 600;
+      font-weight: 550;
       letter-spacing: 0.2px;
     }
 
-    td.has-o  { background: var(--off-bg) !important; color: var(--off-text) !important; }
+    td.has-o { background: var(--off-bg) !important; color: var(--off-text) !important; }
     td.has-ph { background: var(--ph-bg) !important; color: var(--ph-text) !important; }
     td.has-al { background: var(--al-bg) !important; color: var(--al-text) !important; }
     td.has-a2 { background: var(--a2-bg) !important; color: var(--a2-text) !important; }
@@ -83,7 +97,7 @@
 
     td {
       height: 17.2px;
-      line-height: 1.2;
+      line-height:1.2;
       padding: 3px 2px !important;
       vertical-align: middle;
     }
@@ -108,7 +122,7 @@
       font-weight: bold;
       text-align: left;
       width: 80px;
-      border-right: 3px solid #760505 !important;
+      border-right: 3px solid #760505 !important; 
     }
 
     tbody td:nth-child(2) {
@@ -126,22 +140,22 @@
     }
 
     /* Rainbow Text */
-    tbody tr:nth-child(16n + 1)  td:nth-child(1) { color: hsl(0,   75%, 45%) !important; }
-    tbody tr:nth-child(16n + 2)  td:nth-child(1) { color: hsl(23,  80%, 42%) !important; }
-    tbody tr:nth-child(16n + 3)  td:nth-child(1) { color: hsl(45,  80%, 38%) !important; }
-    tbody tr:nth-child(16n + 4)  td:nth-child(1) { color: hsl(68,  55%, 35%) !important; }
-    tbody tr:nth-child(16n + 5)  td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
-    tbody tr:nth-child(16n + 6)  td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
-    tbody tr:nth-child(16n + 7)  td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
-    tbody tr:nth-child(16n + 8)  td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
-    tbody tr:nth-child(16n + 9)  td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
+    tbody tr:nth-child(16n + 1) td:nth-child(1) { color: hsl(0, 75%, 45%) !important; }
+    tbody tr:nth-child(16n + 2) td:nth-child(1) { color: hsl(23, 80%, 42%) !important; }
+    tbody tr:nth-child(16n + 3) td:nth-child(1) { color: hsl(45, 80%, 38%) !important; }
+    tbody tr:nth-child(16n + 4) td:nth-child(1) { color: hsl(68, 55%, 35%) !important; }
+    tbody tr:nth-child(16n + 5) td:nth-child(1) { color: hsl(100, 55%, 32%) !important; }
+    tbody tr:nth-child(16n + 6) td:nth-child(1) { color: hsl(120, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 7) td:nth-child(1) { color: hsl(150, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 8) td:nth-child(1) { color: hsl(170, 55%, 30%) !important; }
+    tbody tr:nth-child(16n + 9) td:nth-child(1) { color: hsl(190, 60%, 35%) !important; }
     tbody tr:nth-child(16n + 10) td:nth-child(1) { color: hsl(210, 65%, 40%) !important; }
     tbody tr:nth-child(16n + 11) td:nth-child(1) { color: hsl(225, 65%, 45%) !important; }
     tbody tr:nth-child(16n + 12) td:nth-child(1) { color: hsl(248, 60%, 45%) !important; }
     tbody tr:nth-child(16n + 13) td:nth-child(1) { color: hsl(270, 55%, 42%) !important; }
     tbody tr:nth-child(16n + 14) td:nth-child(1) { color: hsl(293, 55%, 40%) !important; }
     tbody tr:nth-child(16n + 15) td:nth-child(1) { color: hsl(330, 60%, 40%) !important; }
-    tbody tr:nth-child(16n)      td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
+    tbody tr:nth-child(16n) td:nth-child(1) { color: hsl(345, 65%, 42%) !important; }
 
     .container-fluid, form#shiftForm {
       position: relative;
@@ -151,7 +165,6 @@
     #shiftForm {
       margin-top: 20px;
     }
-
     .badge {
       color: tomato;
       font-size: 16px;
@@ -204,8 +217,8 @@
           <tbody>
             {% for row in data %}
             <tr>
-              {% for col in columns %}
-              {% set val = row.get(col, '') %}
+              {% for col in columns %} 
+              {% set val = row.get(col, '') %} 
               {% if val is none or val == 'nan' or val != val %}
               <td></td>
               {% elif val == 'O' %}
@@ -226,7 +239,7 @@
               <td class="has-a8">A8</td>
               {% else %}
               <td>{{ val }}</td>
-              {% endif %}
+              {% endif %} 
               {% endfor %}
             </tr>
             {% endfor %}
@@ -280,8 +293,8 @@
           let visible = 0;
           rows.forEach((row) => {
             const name = row.cells[0]?.textContent.toLowerCase() ?? "";
-            const id   = row.cells[1]?.textContent.toLowerCase() ?? "";
-            const sub  = row.cells[2]?.textContent.toLowerCase() ?? "";
+            const id = row.cells[1]?.textContent.toLowerCase() ?? "";
+            const sub = row.cells[2]?.textContent.toLowerCase() ?? "";
             const match = !q || name.includes(q) || id.includes(q) || sub.includes(q);
             row.style.display = match ? "" : "none";
             if (match) visible++;
@@ -323,10 +336,8 @@
 
       function renderTable(staffArray) {
         const tbody = document.querySelector("tbody");
-        tbody.innerHTML = staffArray.map(row =>
-          `<tr>${Object.values(row).map(v =>
-            v === "O" ? `<td class="has-o">O</td>` : `<td>${v ?? ""}</td>`
-          ).join("")}</tr>`
+        tbody.innerHTML = staffArray.map(row => 
+          `<tr>${Object.values(row).map(v => v === "O" ? `<td class="has-o">O</td>` : `<td>${v ?? ""}</td>`).join("")}</tr>`
         ).join("");
       }
     </script>
