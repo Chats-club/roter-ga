@@ -51,3 +51,4 @@ urllib3==2.7.0
 websockets==16.0
 Werkzeug==3.1.8
 yarl==1.24.2
+gunicorn==22.0.0
