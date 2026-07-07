@@ -73,7 +73,7 @@ def load_month7_roster():
 # ── Routes cũ ────────────────────────────────────
 @app.route("/")
 def home():
-    return render_template("home.html",vapid_public_key=VAPID_PUBLIC_KEY)
+    return render_template("home.html", vapid_public_key=VAPID_PUBLIC_KEY)
 
 
 @app.route("/month7")
@@ -81,39 +81,37 @@ def month7():
     df = load_month7_roster()
     new_columns = df.columns.tolist()
     data = df.to_dict(orient="records")
-    return render_template("month7.html", data=data, columns=new_columns)  # ← truyền key
+    return render_template("month7.html", data=data, columns=new_columns)
+
 
 @app.route("/man_power7")
 def man_power():
     df = pd.read_excel(FILES[7], sheet_name='ManPower7', header=[0, 1])
-    
+
     new_columns = []
     for i, (top, bot) in enumerate(df.columns):
         top = str(top).strip()
         bot = str(bot).strip()
-        
+
         if i == 0:
-            # Cột đầu: "Shift"
             new_columns.append(top if 'Unnamed' not in top else bot)
         else:
-            # Dùng date (row 2) làm key để tránh trùng tên
-            # bot = ngày (26, 27, 28...), top = thứ (Fri, Sat...)
             date_val = bot if 'Unnamed' not in bot else top
             day_val  = top if 'Unnamed' not in top else ''
             new_columns.append(f"{day_val}_{date_val}" if day_val else date_val)
-    
+
     df.columns = new_columns
     data = df.to_dict(orient="records")
     print("=== DATA (2 rows) ===")
     for row in data[:2]:
         print(row)
-    # Clean NaN
     for row in data:
         for k, v in row.items():
             if pd.isna(v) if not isinstance(v, str) else False:
                 row[k] = ''
-    
+
     return render_template("man_power7.html", data=data, columns=new_columns)
+
 
 @app.route("/month7/history", methods=["GET", "POST"])
 def month7_history():
@@ -169,6 +167,7 @@ def send_push_to_all(title, body):
 
     return count
 
+
 @app.route("/admin/notify", methods=["GET", "POST"])
 def admin_notify():
     if request.method == "POST":
@@ -181,6 +180,7 @@ def admin_notify():
 
     total = subscriptions_col.count_documents({})
     return render_template("admin_notify.html", total=total)
+
 
 # ── Gemini: ask questions about the roster ────────
 ROSTER_START_DATE = datetime(2026, 6, 26)  # roster runs 26/06/2026 → 25/07/2026
@@ -212,12 +212,10 @@ def compute_roster_stats(df):
 
     total_staff = len(df)
 
-    # Normalize cell values for comparison (strip whitespace, uppercase)
     shifts = df[day_cols].astype(str).apply(lambda s: s.str.strip().str.upper())
 
     lines = [f"Total staff on this roster: {total_staff}"]
 
-    # Every distinct shift code that actually appears (ignore blanks/NaN)
     all_values = pd.unique(shifts.values.ravel())
     codes = sorted(v for v in all_values if v and v not in ("NAN", "NONE", ""))
 
@@ -230,7 +228,92 @@ def compute_roster_stats(df):
             f"this month (total of {total_occurrences} '{code}' shift-days across the month)"
         )
 
-    return "\n".join(lines), total_staff
+    # ── Per-staff count cho từng shift code (tên -> số ca chính xác) ──
+    name_col = id_cols[-1]  # cột cuối trong id_cols giả định là tên nhân viên
+    per_staff_lines = ["\nPER-STAFF SHIFT COUNTS (exact, computed by code):"]
+
+    for code in codes:
+        code_counts = (shifts == code).sum(axis=1)
+        for idx in range(total_staff):
+            count = int(code_counts.iloc[idx])
+            if count > 0:
+                staff_name = str(df.iloc[idx][name_col])
+                per_staff_lines.append(f"- {staff_name}: {count} '{code}' shift(s)")
+
+    # ── Phân phối: bao nhiêu người có bao nhiêu ca, theo từng loại shift ──
+    dist_lines = ["\nSHIFT-COUNT DISTRIBUTION (exact, computed by code):"]
+    for code in codes:
+        code_counts = (shifts == code).sum(axis=1)
+        code_counts = code_counts[code_counts > 0]
+        if code_counts.empty:
+            continue
+        dist_lines.append(f"'{code}' shifts:")
+        value_counts = code_counts.value_counts().sort_index(ascending=False)
+        for num_shifts, num_staff in value_counts.items():
+            dist_lines.append(f"  - {int(num_staff)} staff have {int(num_shifts)} '{code}' shift(s)")
+
+    # ── Nhân viên có TỔNG số ca LÀM VIỆC nhiều nhất (bỏ qua O, PH, AL) ──
+    off_codes = {"O", "PH", "AL"}
+    work_codes = [c for c in codes if c not in off_codes]
+    work_lines = ["\nTOTAL WORKING SHIFTS PER STAFF (excludes O/PH/AL, exact, computed by code):"]
+    if work_codes:
+        is_work = shifts.isin(work_codes)
+        work_totals = is_work.sum(axis=1)
+        ranking = pd.DataFrame({
+            "name": df[name_col].astype(str),
+            "total_working_shifts": work_totals
+        }).sort_values("total_working_shifts", ascending=False)
+
+        max_shifts = int(ranking["total_working_shifts"].max())
+        top_staff = ranking[ranking["total_working_shifts"] == max_shifts]
+        top_names = ", ".join(top_staff["name"].tolist())
+        work_lines.append(
+            f"- Staff with the MOST total working shifts this month ({max_shifts} shifts): {top_names}"
+        )
+        work_lines.append("- Full ranking (highest to lowest):")
+        for _, row in ranking.iterrows():
+            work_lines.append(f"  - {row['name']}: {int(row['total_working_shifts'])} working shifts")
+
+    # ── Số người ĐANG LÀM VIỆC (không phải O/PH/AL) trong TỪNG NGÀY,
+    #    kèm chi tiết breakdown theo từng loại ca (A2, A8, B5, C6, D5...) ──
+    off_values_for_day = {"O", "PH", "AL", "NAN", "NONE", ""}
+    day_lines = ["\nDAILY WORKING HEADCOUNT + BREAKDOWN BY SHIFT CODE (exact, computed by code):"]
+    for i, col in enumerate(day_cols):
+        day_col_values = shifts[col]
+        working_count = int((~day_col_values.isin(off_values_for_day)).sum())
+        actual_date = ROSTER_START_DATE + timedelta(days=i)
+
+        # Đếm riêng từng shift code làm việc (bỏ qua O/PH/AL) trong ngày đó
+        work_codes_today = [c for c in codes if c not in off_values_for_day]
+        breakdown_parts = []
+        for wc in work_codes_today:
+            wc_count = int((day_col_values == wc).sum())
+            if wc_count > 0:
+                breakdown_parts.append(f"{wc_count}{wc}")
+        breakdown_str = ", ".join(breakdown_parts) if breakdown_parts else "none"
+
+        day_lines.append(
+            f"- {actual_date.strftime('%d/%m/%Y')} ({col}): {working_count} staff working total "
+            f"→ {breakdown_str}"
+        )
+
+
+    # ── Ai lấy NHIỀU NHẤT mỗi loại ca (áp dụng cho mọi code: O, PH, AL, D5, A2, B5, C6, A8...) ──
+    top_lines = ["\nTOP STAFF PER SHIFT CODE (who has the most of each code, exact, computed by code):"]
+    for code in codes:
+        code_counts = (shifts == code).sum(axis=1)
+        max_count = int(code_counts.max())
+        if max_count == 0:
+            continue
+        top_names = df.loc[code_counts.values == max_count, name_col].astype(str).tolist()
+        top_lines.append(
+            f"- '{code}': {', '.join(top_names)} — {max_count} '{code}' shift(s) each (highest in the roster)"
+        )
+
+    full_stats = "\n".join(
+        lines + per_staff_lines + dist_lines + work_lines + day_lines + top_lines
+    )
+    return full_stats, total_staff
 
 
 @app.route("/api/ask-roster", methods=["POST"])
@@ -297,7 +380,7 @@ Question: {question}"""
 
     try:
         response = genai_client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt
         )
         return jsonify({"answer": response.text})
@@ -311,6 +394,8 @@ def service_worker():
                                    mimetype="application/javascript")
     response.headers["Service-Worker-Allowed"] = "/"
     return response
+
+
 @app.route("/manifest.json")
 def manifest():
     return send_from_directory("static", "manifest.json",

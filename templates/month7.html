@@ -79,6 +79,8 @@
       --ph-text: #1e3a8a;
       --al-bg: #ffd166;
       --al-text: #7c2d12;
+      --sl-bg: #f56049;
+      --sl-text: #7c2d12;
 
       /* fix 5 cái đang trắng */
       /* --a2-bg: #e9d5ff; */
@@ -96,6 +98,7 @@
     td.has-o,
     td.has-ph,
     td.has-al,
+    td.has-sl,
     td.has-a2,
     td.has-b5,
     td.has-c6,
@@ -116,6 +119,10 @@
     td.has-al {
       background: var(--al-bg) !important;
       color: var(--al-text) !important;
+    }
+    td.has-sl {
+      background: var(--sl-bg) !important;
+      color: var(--sl-text) !important;
     }
     td.has-a2 {
       background: var(--a2-bg) !important;
@@ -339,16 +346,19 @@
               <td class="has-ph">PH</td>
               {% elif val == 'AL' %}
               <td class="has-al">AL</td>
+              {% elif val == 'SL' %}
+              <td class="has-sl">SL</td>
               {% elif val == 'A2' %}
               <td class="has-a2">A2</td>
+              {% elif val == 'A8' %}
+              <td class="has-a8">A8</td>
               {% elif val == 'B5' %}
               <td class="has-b5">B5</td>
               {% elif val == 'C6' %}
               <td class="has-c6">C6</td>
               {% elif val == 'D5' %}
               <td class="has-d5">D5</td>
-              {% elif val == 'A8' %}
-              <td class="has-a8">A8</td>
+
               {% else %}
               <td>{{ val }}</td>
               {% endif %} {% endfor %}
