@@ -316,20 +316,22 @@ def compute_roster_stats(df):
     return full_stats, total_staff
 
 
-@app.route("/api/ask-roster", methods=["POST"])
-def ask_roster():
+def get_roster_answer(question):
+    """Core roster Q&A logic, shared by the web JSON API and the Zalo
+    webhook. Returns a plain string answer. Raises RuntimeError with a
+    user-facing message on failure — caller decides how to surface it
+    (jsonify for the web API, a plain-text Zalo reply for the webhook)."""
     if not genai_client:
-        return jsonify({"error": "GEMINI_API_KEY is not configured on the server"}), 500
+        raise RuntimeError("GEMINI_API_KEY is not configured on the server")
 
-    body = request.get_json(silent=True) or {}
-    question = (body.get("question") or "").strip()
+    question = (question or "").strip()
     if not question:
-        return jsonify({"error": "Missing 'question'"}), 400
+        raise RuntimeError("Câu hỏi trống, bạn hỏi lại giúp mình nhé.")
 
     try:
         df = load_month7_roster()
     except Exception as e:
-        return jsonify({"error": f"Could not load roster data: {e}"}), 500
+        raise RuntimeError(f"Không đọc được dữ liệu roster: {e}")
 
     # CSV where every column header already carries its real calendar date —
     # no guessing required for date-based questions
@@ -383,9 +385,195 @@ Question: {question}"""
             model="gemini-2.5-flash-lite",
             contents=prompt
         )
-        return jsonify({"answer": response.text})
+        return response.text
     except Exception as e:
-        return jsonify({"error": f"Gemini request failed: {e}"}), 500
+        raise RuntimeError(f"Gemini request failed: {e}")
+
+
+@app.route("/api/ask-roster", methods=["POST"])
+def ask_roster():
+    body = request.get_json(silent=True) or {}
+    question = (body.get("question") or "").strip()
+    if not question:
+        return jsonify({"error": "Missing 'question'"}), 400
+
+    try:
+        answer = get_roster_answer(question)
+        return jsonify({"answer": answer})
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Zalo webhook + OAuth token management ─────────
+import requests
+import time
+
+ZALO_APP_ID     = os.getenv("ZALO_APP_ID")
+ZALO_APP_SECRET = os.getenv("ZALO_APP_SECRET")
+# Where Zalo redirects back after the admin approves permission. Must exactly
+# match a domain registered in the app's settings on developers.zalo.me.
+ZALO_REDIRECT_URI = os.getenv("ZALO_REDIRECT_URI", "https://roter-ga.onrender.com/oauth/zalo/callback")
+
+ZALO_TOKEN_URL        = "https://oauth.zaloapp.com/v4/oa/access_token"
+ZALO_SEND_MESSAGE_URL = "https://openapi.zalo.me/v3.0/oa/message/cs"
+ZALO_MAX_MESSAGE_LEN  = 2000  # Zalo text messages have a length limit
+
+zalo_tokens_col = db["zalo_tokens"]  # single-document collection: {_id: "oa", access_token, refresh_token, expires_at}
+
+
+def _save_zalo_tokens(access_token, refresh_token, expires_in_seconds):
+    zalo_tokens_col.update_one(
+        {"_id": "oa"},
+        {"$set": {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            # refresh a bit early (60s buffer) rather than exactly at expiry
+            "expires_at": time.time() + int(expires_in_seconds) - 60,
+        }},
+        upsert=True,
+    )
+
+
+def _exchange_code_for_tokens(code):
+    """First-time exchange: authorization code -> access_token + refresh_token.
+    Only needed once per OA link-up (or whenever the refresh_token itself
+    expires and you have to redo the manual QR-login step)."""
+    headers = {"secret_key": ZALO_APP_SECRET, "Content-Type": "application/x-www-form-urlencoded"}
+    data = {
+        "code": code,
+        "app_id": ZALO_APP_ID,
+        "grant_type": "authorization_code",
+    }
+    resp = requests.post(ZALO_TOKEN_URL, headers=headers, data=data, timeout=10)
+    result = resp.json()
+    if "access_token" not in result:
+        raise RuntimeError(f"Zalo token exchange failed: {result}")
+    _save_zalo_tokens(result["access_token"], result["refresh_token"], result.get("expires_in", 3600))
+    return result
+
+
+def _refresh_zalo_token(refresh_token):
+    """Use the stored refresh_token to get a new access_token, without
+    requiring the admin to log in again. Called automatically whenever the
+    current access_token is close to expiring."""
+    headers = {"secret_key": ZALO_APP_SECRET, "Content-Type": "application/x-www-form-urlencoded"}
+    data = {
+        "refresh_token": refresh_token,
+        "app_id": ZALO_APP_ID,
+        "grant_type": "refresh_token",
+    }
+    resp = requests.post(ZALO_TOKEN_URL, headers=headers, data=data, timeout=10)
+    result = resp.json()
+    if "access_token" not in result:
+        # Refresh token itself may have expired (it lasts longer than the
+        # access token, but not forever) — this needs a fresh manual login.
+        raise RuntimeError(
+            f"Zalo refresh_token failed, may need to re-authorize via /oauth/zalo/start: {result}"
+        )
+    # Zalo may or may not rotate the refresh_token on each call; keep the old
+    # one if a new one isn't returned.
+    new_refresh_token = result.get("refresh_token", refresh_token)
+    _save_zalo_tokens(result["access_token"], new_refresh_token, result.get("expires_in", 3600))
+    return result["access_token"]
+
+
+def get_valid_zalo_token():
+    """Return a currently-valid access_token, refreshing it first if needed.
+    Raises RuntimeError if no token has ever been issued (admin needs to
+    visit /oauth/zalo/start once) or if the refresh_token has expired."""
+    doc = zalo_tokens_col.find_one({"_id": "oa"})
+    if not doc:
+        raise RuntimeError("Chưa có Zalo token nào — truy cập /oauth/zalo/start để cấp quyền lần đầu.")
+
+    if time.time() >= doc["expires_at"]:
+        return _refresh_zalo_token(doc["refresh_token"])
+    return doc["access_token"]
+
+
+@app.route("/oauth/zalo/start")
+def zalo_oauth_start():
+    """Convenience redirect: visiting this once (as the OA admin) kicks off
+    the one-time manual login/QR-scan step. After that, tokens refresh
+    themselves automatically — you shouldn't need this route again unless
+    the refresh_token itself expires."""
+    permission_url = (
+        f"https://oauth.zaloapp.com/v4/oa/permission"
+        f"?app_id={ZALO_APP_ID}&redirect_uri={ZALO_REDIRECT_URI}"
+    )
+    return redirect(permission_url)
+
+
+@app.route("/oauth/zalo/callback")
+def zalo_oauth_callback():
+    code = request.args.get("code")
+    if not code:
+        return "Missing 'code' from Zalo redirect.", 400
+    try:
+        _exchange_code_for_tokens(code)
+        return "✅ Đã cấp quyền Zalo OA thành công. Token sẽ tự động refresh từ giờ."
+    except RuntimeError as e:
+        return f"❌ {e}", 500
+
+
+def send_zalo_message(user_id, text):
+    """Send a plain text reply to a Zalo user via the OA 'customer support'
+    send-message endpoint. Requires the user to have messaged the OA
+    recently (Zalo restricts free-form replies to an interaction window)."""
+    try:
+        access_token = get_valid_zalo_token()
+    except RuntimeError as e:
+        print(f"⚠️ {e}")
+        return None
+
+    if len(text) > ZALO_MAX_MESSAGE_LEN:
+        text = text[:ZALO_MAX_MESSAGE_LEN - 20].rstrip() + "\n... (đã rút gọn)"
+
+    headers = {
+        "Content-Type": "application/json",
+        "access_token": access_token,
+    }
+    payload = {
+        "recipient": {"user_id": user_id},
+        "message": {"text": text},
+    }
+    try:
+        resp = requests.post(ZALO_SEND_MESSAGE_URL, headers=headers, json=payload, timeout=10)
+        result = resp.json()
+        if result.get("error", 0) != 0:
+            print(f"⚠️ Zalo send_message error: {result}")
+        return result
+    except requests.RequestException as e:
+        print(f"⚠️ Zalo send_message request failed: {e}")
+        return None
+
+
+@app.route("/webhook/zalo", methods=["GET", "POST"])
+def zalo_webhook():
+    # Zalo doesn't require a GET challenge like Facebook Messenger, but a
+    # GET route is handy for a quick manual "is this endpoint alive" check.
+    if request.method == "GET":
+        return "OK", 200
+
+    data = request.get_json(silent=True) or {}
+    event_name = data.get("event_name")
+
+    # Only handle plain text messages from users for now. Zalo sends other
+    # event types too (follow, unfollow, sticker, image, ...) — extend this
+    # if/elif chain as needed.
+    if event_name == "user_send_text":
+        sender_id = (data.get("sender") or {}).get("id")
+        user_message = (data.get("message") or {}).get("text", "")
+
+        if sender_id and user_message:
+            try:
+                answer = get_roster_answer(user_message)
+            except RuntimeError as e:
+                answer = f"Xin lỗi, mình gặp lỗi: {e}"
+            send_zalo_message(sender_id, answer)
+
+    # Always return 200 quickly — Zalo will retry/flag the webhook as
+    # unhealthy if it doesn't get a fast, successful response.
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/service-worker.js")
