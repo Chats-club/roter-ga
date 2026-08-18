@@ -45,6 +45,7 @@ except Exception as e:
 db               = client["flask_db"]
 history_col      = db["history"]
 history_col8     = db["history8"]
+history_col9     = db["history9"]
 subscriptions_col = db["push_subscriptions"]  # ← collection mới
 
 # ── VAPID Keys (thêm vào .env) ────────────────────
@@ -87,6 +88,22 @@ def load_month8_roster():
     df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
     return df
 
+def load_month9_roster():
+    df = pd.read_excel(FILES[7], sheet_name='MONTH9', header=[0, 1])
+    new_columns = []
+    for i, (top, bot) in enumerate(df.columns):
+        top = str(top).strip()
+        bot = str(bot).strip()
+        if i < 2:
+            new_columns.append(top if 'Unnamed' not in top else bot)
+        else:
+            day_name = top if 'Unnamed' not in top else ''
+            day_num  = bot if 'Unnamed' not in bot else ''
+            new_columns.append(f"{day_name}-{day_num}")
+    df.columns = new_columns
+    df.columns = [re.sub(r'\.\d+$', '', str(col)) for col in df.columns]
+    return df
+
 # ── Routes cũ ────────────────────────────────────
 @app.route("/")
 def home():
@@ -106,6 +123,13 @@ def month8():
     new_columns = df.columns.tolist()
     data = df.to_dict(orient="records")
     return render_template("month8.html", data=data, columns=new_columns)
+
+@app.route("/month9")
+def month9():
+    df = load_month9_roster()
+    new_columns = df.columns.tolist()
+    data = df.to_dict(orient="records")
+    return render_template("month9.html", data=data, columns=new_columns)
 
 @app.route("/man_power7")
 def man_power():
@@ -162,6 +186,33 @@ def man_power1():
                 row[k] = ''
 
     return render_template("man_power8.html", data=data, columns=new_columns)
+@app.route("/man_power9")
+def man_power2():
+    df = pd.read_excel(FILES[7], sheet_name='ManPower9', header=[0, 1])
+
+    new_columns = []
+    for i, (top, bot) in enumerate(df.columns):
+        top = str(top).strip()
+        bot = str(bot).strip()
+
+        if i == 0:
+            new_columns.append(top if 'Unnamed' not in top else bot)
+        else:
+            date_val = bot if 'Unnamed' not in bot else top
+            day_val  = top if 'Unnamed' not in top else ''
+            new_columns.append(f"{day_val}_{date_val}" if day_val else date_val)
+
+    df.columns = new_columns
+    data = df.to_dict(orient="records")
+    print("=== DATA (2 rows) ===")
+    for row in data[:2]:
+        print(row)
+    for row in data:
+        for k, v in row.items():
+            if pd.isna(v) if not isinstance(v, str) else False:
+                row[k] = ''
+
+    return render_template("man_power9.html", data=data, columns=new_columns)
 
 @app.route("/month7/history", methods=["GET", "POST"])
 def month7_history():
@@ -184,6 +235,17 @@ def month8_history():
         return redirect(url_for('month8_history'))
     data = list(history_col8.find({}, {"_id": 0}))
     return render_template("month8_history.html", data=data)
+
+@app.route("/month9/history", methods=["GET", "POST"])
+def month9_history():
+    if request.method == "POST":
+        text   = request.form.get("text")
+        vn_tz  = timezone(timedelta(hours=7))
+        now    = datetime.now(vn_tz).strftime("%d/%m/%Y %H:%M")
+        history_col9.insert_one({"time": now, "text": text})
+        return redirect(url_for('month9_history'))
+    data = list(history_col9.find({}, {"_id": 0}))
+    return render_template("month9_history.html", data=data)
 # ── Push Notification Routes ──────────────────────
 @app.route("/api/subscribe", methods=["POST"])
 def subscribe():
